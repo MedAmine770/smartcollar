@@ -1,0 +1,1893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>SmartCollar</title>
+<meta name="description" content="Livestock health monitoring for farmers">
+<meta name="theme-color" content="#1C5C3A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SmartCollar">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%231C5C3A'/><text y='.9em' font-size='80' x='10'>🐄</text></svg>">
+<link rel="manifest" href="data:application/json,{&quot;name&quot;:&quot;SmartCollar&quot;,&quot;short_name&quot;:&quot;SmartCollar&quot;,&quot;start_url&quot;:&quot;/&quot;,&quot;display&quot;:&quot;standalone&quot;,&quot;background_color&quot;:&quot;%231C5C3A&quot;,&quot;theme_color&quot;:&quot;%231C5C3A&quot;,&quot;icons&quot;:[{&quot;src&quot;:&quot;data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%231C5C3A'/></svg>&quot;,&quot;sizes&quot;:&quot;any&quot;,&quot;type&quot;:&quot;image/svg+xml&quot;}]}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --green: #1C5C3A;
+  --white: #FFFFFF;
+  --g08: rgba(28,92,58,0.08);
+  --g12: rgba(28,92,58,0.12);
+  --g25: rgba(28,92,58,0.25);
+  --g45: rgba(28,92,58,0.45);
+  --g18: rgba(28,92,58,0.18);
+  --g28: rgba(28,92,58,0.28);
+  --g10: rgba(28,92,58,0.10);
+  --g15: rgba(28,92,58,0.15);
+  --w12: rgba(255,255,255,0.12);
+  --w60: rgba(255,255,255,0.6);
+}
+
+body {
+  background: #F5F5F5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;
+  padding: 40px 20px;
+}
+
+.product-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(28,92,58,0.5);
+  margin-bottom: 16px;
+  font-weight: 500;
+}
+
+.phone-shell {
+  width: 393px;
+  height: 852px;
+  border-radius: 55px;
+  border: 1px solid rgba(0,0,0,0.1);
+  background: var(--white);
+  position: relative;
+  overflow: hidden;
+}
+
+.dynamic-island {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 126px;
+  height: 36px;
+  background: #000;
+  border-radius: 18px;
+  z-index: 1000;
+}
+
+.screen-viewport {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  overflow: hidden;
+}
+
+/* Screen container */
+.screen {
+  position: absolute;
+  top: 0; left: 0;
+  width: 393px;
+  height: 852px;
+  background: var(--white);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 280ms ease;
+  will-change: transform;
+}
+
+.screen.active {
+  transform: translateX(0);
+}
+
+.screen.slide-out {
+  transform: translateX(100%);
+}
+
+/* Status bar */
+.status-bar {
+  height: 44px;
+  background: var(--green);
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 24px 8px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+}
+
+.status-bar-time {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--white);
+}
+
+.status-bar-icons {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-bar-icons svg {
+  fill: none;
+  stroke: var(--white);
+}
+
+/* Nav bar */
+.nav-bar {
+  height: 44px;
+  background: var(--green);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+}
+
+.nav-title {
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--white);
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.nav-btn {
+  font-size: 17px;
+  font-weight: 400;
+  color: var(--white);
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  min-width: 44px;
+  min-height: 44px;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.nav-btn.left { justify-content: flex-start; }
+.nav-btn.right { justify-content: flex-end; }
+.nav-btn svg { flex-shrink: 0; }
+
+/* Scroll content */
+.scroll-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.scroll-content::-webkit-scrollbar { display: none; }
+
+/* Tab bar */
+.tab-bar {
+  height: 83px;
+  background: var(--white);
+  border-top: 1px solid var(--g10);
+  display: flex;
+  align-items: flex-start;
+  padding-top: 8px;
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.tab-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  padding: 0;
+  background: none;
+  border: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tab-icon { width: 24px; height: 24px; }
+.tab-label {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.tab-item.active .tab-label { color: var(--green); }
+.tab-item.active svg { stroke: var(--green); }
+.tab-item:not(.active) .tab-label { color: var(--g28); }
+.tab-item:not(.active) svg { stroke: var(--g28); }
+
+/* Home indicator */
+.home-indicator {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 134px;
+  height: 5px;
+  background: var(--g18);
+  border-radius: 3px;
+}
+
+/* ===== DASHBOARD SCREEN ===== */
+.stats-row {
+  display: flex;
+  border-bottom: 1px solid var(--g12);
+  margin-bottom: 24px;
+}
+
+.stat-block {
+  flex: 1;
+  padding: 16px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  position: relative;
+}
+
+.stat-block:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  right: 0; top: 16px; bottom: 16px;
+  width: 1px;
+  background: var(--g12);
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--green);
+}
+
+.stat-label {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--g45);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.stat-label.bold-alert {
+  font-weight: 700;
+  color: var(--green);
+}
+
+/* Section headers */
+.section-header {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--g45);
+  margin: 0 16px 8px;
+}
+
+/* Alert rows */
+.alert-row {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  min-height: 44px;
+  cursor: pointer;
+  position: relative;
+  gap: 12px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.alert-row::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 16px; right: 0;
+  height: 1px;
+  background: var(--g10);
+}
+
+.alert-dot {
+  width: 6px; height: 6px;
+  background: var(--green);
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.alert-row-content { flex: 1; }
+.alert-cow-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--green);
+}
+.alert-meta {
+  font-size: 13px;
+  color: var(--g45);
+  margin-top: 2px;
+}
+.alert-time {
+  font-size: 11px;
+  color: var(--g25);
+  margin-top: 2px;
+}
+
+/* Search */
+.search-wrap { margin: 8px 16px 8px; }
+.search-input {
+  width: 100%;
+  height: 44px;
+  border: 1px solid var(--g12);
+  border-radius: 10px;
+  padding: 0 12px;
+  font-size: 15px;
+  color: var(--green);
+  background: var(--white);
+  font-family: inherit;
+  outline: none;
+}
+.search-input::placeholder { color: var(--g25); }
+.search-input:focus { border-color: var(--green); }
+
+/* Collar rows */
+.collar-row {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  min-height: 44px;
+  cursor: pointer;
+  position: relative;
+  gap: 12px;
+  -webkit-tap-highlight-color: transparent;
+}
+.collar-row::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 16px; right: 0;
+  height: 1px;
+  background: var(--g10);
+}
+.collar-active-sq {
+  width: 4px; height: 4px;
+  background: var(--green);
+  flex-shrink: 0;
+  align-self: center;
+}
+.collar-row-content { flex: 1; }
+.collar-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--green);
+}
+.collar-meta {
+  font-size: 13px;
+  color: var(--g45);
+  margin-top: 2px;
+}
+.collar-vitals {
+  font-size: 13px;
+  color: var(--g45);
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* ===== COW DETAIL ===== */
+.info-card {
+  margin: 16px;
+  border: 1px solid var(--g12);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.info-card-row {
+  font-size: 15px;
+  color: var(--green);
+  margin-bottom: 12px;
+}
+
+.info-card-meta {
+  font-size: 13px;
+  color: var(--g45);
+  margin-bottom: 16px;
+}
+
+.battery-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.battery-label {
+  font-size: 13px;
+  color: var(--g45);
+  flex-shrink: 0;
+  width: 52px;
+}
+
+.battery-track {
+  flex: 1;
+  height: 4px;
+  background: var(--g08);
+  border-radius: 2px;
+  overflow: hidden;
+  border: 1px solid var(--g12);
+}
+
+.battery-fill {
+  height: 100%;
+  background: var(--green);
+  border-radius: 2px;
+}
+
+.battery-pct {
+  font-size: 13px;
+  color: var(--g45);
+  flex-shrink: 0;
+  width: 36px;
+  text-align: right;
+}
+
+/* Vitals grid */
+.vitals-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 0 16px 16px;
+}
+
+.vital-card {
+  border: 1px solid var(--g12);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.vital-label {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--g45);
+  margin-bottom: 8px;
+}
+
+.vital-value-row {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.vital-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--green);
+}
+
+.vital-unit {
+  font-size: 13px;
+  color: var(--g45);
+}
+
+.vital-trend {
+  font-size: 11px;
+  color: var(--g25);
+}
+
+/* Chart */
+.chart-section {
+  margin: 0 16px 16px;
+}
+
+.chart-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--green);
+  margin-bottom: 12px;
+}
+
+.chart-wrap {
+  border: 1px solid var(--g12);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.chart-svg { width: 100%; overflow: visible; }
+
+/* Event log */
+.event-log-section { margin-bottom: 32px; }
+
+.event-row {
+  display: flex;
+  gap: 12px;
+  padding: 10px 16px;
+  min-height: 44px;
+  align-items: flex-start;
+  position: relative;
+}
+
+.event-row::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 16px; right: 0;
+  height: 1px;
+  background: var(--g10);
+}
+
+.event-time {
+  font-size: 11px;
+  color: var(--g25);
+  flex-shrink: 0;
+  width: 88px;
+  padding-top: 2px;
+}
+
+.event-desc {
+  font-size: 13px;
+  color: var(--green);
+  flex: 1;
+  line-height: 1.4;
+}
+
+/* ===== ALERT DETAIL ===== */
+.alert-header-card {
+  margin: 16px;
+  border: 1px solid var(--g12);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.alert-tag {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--g45);
+  margin-bottom: 8px;
+}
+
+.alert-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--green);
+  margin-bottom: 4px;
+}
+
+.alert-subtitle {
+  font-size: 15px;
+  color: var(--g45);
+  margin-bottom: 4px;
+}
+
+.alert-time-txt {
+  font-size: 13px;
+  color: var(--g25);
+  margin-bottom: 12px;
+}
+
+.alert-pill {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--green);
+  border-radius: 6px;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--green);
+  background: var(--white);
+}
+
+/* Two-col cards */
+.two-col-cards {
+  display: flex;
+  gap: 8px;
+  margin: 0 16px 16px;
+}
+
+.data-card {
+  flex: 1;
+  border: 1px solid var(--g12);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.data-card-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--green);
+  margin-bottom: 10px;
+}
+
+.data-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  gap: 4px;
+}
+
+.data-key {
+  font-size: 11px;
+  color: var(--g45);
+  flex-shrink: 0;
+}
+
+.data-val {
+  font-size: 11px;
+  color: var(--green);
+  text-align: right;
+}
+
+.data-val.bold { font-weight: 700; }
+
+/* What to do */
+.wtd-section { margin: 0 16px 24px; }
+
+.wtd-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--green);
+  margin-bottom: 12px;
+}
+
+.wtd-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.wtd-num {
+  width: 24px; height: 24px;
+  border: 1px solid var(--green);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--green);
+  flex-shrink: 0;
+}
+
+.wtd-text {
+  font-size: 13px;
+  color: var(--green);
+  padding-top: 4px;
+  line-height: 1.4;
+}
+
+/* Footer */
+.alert-footer {
+  background: var(--white);
+  border-top: 1px solid var(--g12);
+  padding: 16px;
+  flex-shrink: 0;
+}
+
+.btn-primary {
+  width: 100%;
+  height: 50px;
+  background: var(--green);
+  color: var(--white);
+  font-size: 17px;
+  font-weight: 500;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn-secondary {
+  width: 100%;
+  height: 50px;
+  background: var(--white);
+  color: var(--green);
+  font-size: 17px;
+  font-weight: 500;
+  border: 1px solid var(--green);
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  margin-top: 8px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.response-logged {
+  font-size: 13px;
+  color: var(--g45);
+  text-align: center;
+  padding: 12px 0;
+  display: none;
+}
+
+/* ===== ADD COLLAR ===== */
+.qr-card {
+  margin: 16px;
+  border: 1px solid var(--g12);
+  border-radius: 12px;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.qr-viewfinder {
+  width: 180px;
+  height: 180px;
+  position: relative;
+  margin-bottom: 12px;
+}
+
+.qr-caption {
+  font-size: 13px;
+  color: var(--g45);
+  text-align: center;
+}
+
+.success-state {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+}
+
+.success-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--green);
+}
+
+.success-sub {
+  font-size: 15px;
+  color: var(--g45);
+  text-align: center;
+}
+
+/* Divider with text */
+.or-divider {
+  display: flex;
+  align-items: center;
+  margin: 0 16px 16px;
+  gap: 12px;
+}
+
+.or-line {
+  flex: 1;
+  height: 1px;
+  background: var(--g12);
+}
+
+.or-text {
+  font-size: 11px;
+  color: var(--g25);
+  white-space: nowrap;
+}
+
+/* Form fields */
+.form-fields { margin: 0 16px; }
+
+.form-field {
+  margin-bottom: 20px;
+}
+
+.field-label {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--g45);
+  margin-bottom: 4px;
+}
+
+.field-input {
+  width: 100%;
+  height: 44px;
+  border: none;
+  border-bottom: 1px solid var(--g15);
+  background: transparent;
+  font-size: 13px;
+  color: var(--green);
+  font-family: inherit;
+  outline: none;
+  padding: 0;
+}
+
+.field-input::placeholder { color: var(--g25); }
+.field-input:focus { border-bottom-color: var(--green); }
+
+.add-btn-wrap { margin: 24px 16px; }
+
+/* ===== HOW IT WORKS ===== */
+.step-list { margin-bottom: 24px; }
+
+.step-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 16px;
+  min-height: 44px;
+  position: relative;
+}
+
+.step-row::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 16px; right: 0;
+  height: 1px;
+  background: var(--g10);
+}
+
+.step-circle {
+  width: 36px; height: 36px;
+  background: var(--g08);
+  border: 1px solid var(--g12);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--green);
+  flex-shrink: 0;
+}
+
+.step-content { flex: 1; }
+.step-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--green);
+  margin-bottom: 2px;
+}
+.step-desc {
+  font-size: 13px;
+  color: var(--g45);
+  line-height: 1.4;
+}
+
+/* AI Layer cards */
+.ai-cards { margin: 0 16px 32px; display: flex; flex-direction: column; gap: 8px; }
+
+.ai-card {
+  border: 1px solid var(--g12);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.ai-num-circle {
+  width: 24px; height: 24px;
+  background: var(--green);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--white);
+  flex-shrink: 0;
+}
+
+.ai-card-body { flex: 1; }
+
+.ai-card-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.ai-card-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--green);
+}
+
+.timing-pill {
+  border: 1px solid var(--green);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--green);
+}
+
+.ai-card-desc {
+  font-size: 13px;
+  color: var(--g45);
+  line-height: 1.4;
+}
+
+/* ===== SETTINGS ===== */
+.settings-list { margin-bottom: 32px; }
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  height: 44px;
+  cursor: pointer;
+  position: relative;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.settings-row::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 16px; right: 0;
+  height: 1px;
+  background: var(--g10);
+}
+
+.settings-row-label {
+  font-size: 17px;
+  color: var(--green);
+  flex: 1;
+}
+
+/* Reports empty */
+.coming-soon {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  color: var(--g45);
+}
+
+/* Controls below phone */
+.controls {
+  margin-top: 20px;
+  font-size: 11px;
+  color: rgba(28,92,58,0.35);
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.controls span { cursor: pointer; }
+.controls span:hover { color: var(--green); }
+.controls-sep { color: rgba(28,92,58,0.2); }
+
+/* SVG chevron helper */
+svg { display: block; }
+
+/* ===== MOBILE: full screen on real phones ===== */
+@media (max-width: 500px) {
+  body {
+    background: #1C5C3A;
+    padding: 0;
+    min-height: 100dvh;
+    justify-content: flex-start;
+    align-items: stretch;
+  }
+
+  .product-label { display: none; }
+  .controls { display: none; }
+
+  .phone-shell {
+    width: 100%;
+    height: 100dvh;
+    border-radius: 0;
+    border: none;
+    position: fixed;
+    top: 0; left: 0;
+  }
+
+  .dynamic-island { display: none; }
+
+  .status-bar {
+    padding-top: env(safe-area-inset-top);
+    height: calc(44px + env(safe-area-inset-top));
+  }
+
+  .tab-bar {
+    padding-bottom: env(safe-area-inset-bottom);
+    height: calc(83px + env(safe-area-inset-bottom));
+  }
+
+  .home-indicator { display: none; }
+
+  .screen {
+    width: 100%;
+    height: 100dvh;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="product-label">SmartCollar</div>
+
+<div class="phone-shell">
+  <div class="dynamic-island"></div>
+  <div class="screen-viewport">
+
+    <!-- ======= SCREEN: DASHBOARD ======= -->
+    <div class="screen active" id="screen-dashboard">
+      <div class="status-bar">
+        <span class="status-bar-time">9:41</span>
+        <div class="status-bar-icons">
+          <svg width="16" height="12" viewBox="0 0 16 12" stroke-width="1.5">
+            <rect x="0.5" y="3.5" width="3" height="8" rx="0.5" fill="white" stroke="none"/>
+            <rect x="4.5" y="2" width="3" height="9.5" rx="0.5" fill="white" stroke="none"/>
+            <rect x="8.5" y="0.5" width="3" height="11" rx="0.5" fill="white" stroke="none"/>
+            <rect x="12.5" y="4" width="3" height="7.5" rx="0.5" fill="rgba(255,255,255,0.4)" stroke="none"/>
+          </svg>
+          <svg width="16" height="12" viewBox="0 0 16 12" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round">
+            <path d="M8 9.5 L8 9.5" stroke-width="2.5"/>
+            <path d="M5 7.5 Q8 4.5 11 7.5"/>
+            <path d="M2.5 5 Q8 0.5 13.5 5"/>
+          </svg>
+          <svg width="25" height="12" viewBox="0 0 25 12" fill="none">
+            <rect x="0.5" y="0.5" width="21" height="11" rx="2.5" stroke="white" stroke-width="1"/>
+            <rect x="22" y="3.5" width="2.5" height="5" rx="1" fill="white"/>
+            <rect x="2" y="2" width="16" height="8" rx="1.5" fill="white"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="nav-bar">
+        <div style="min-width:44px;"></div>
+        <span class="nav-title">My Herd</span>
+        <button class="nav-btn right" onclick="navigate('add')">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round">
+            <line x1="9" y1="3" x2="9" y2="15"/>
+            <line x1="3" y1="9" x2="15" y2="9"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="scroll-content">
+        <!-- Stats row -->
+        <div class="stats-row">
+          <div class="stat-block">
+            <span class="stat-value">24</span>
+            <span class="stat-label">Total</span>
+          </div>
+          <div class="stat-block">
+            <span class="stat-value">23</span>
+            <span class="stat-label">Active</span>
+          </div>
+          <div class="stat-block">
+            <span class="stat-value">2</span>
+            <span class="stat-label bold-alert">Alerts — 2</span>
+          </div>
+        </div>
+
+        <!-- Active Alerts -->
+        <div class="section-header">Active Alerts</div>
+
+        <div class="alert-row" onclick="navigate('alert-detail')">
+          <div class="alert-dot"></div>
+          <div class="alert-row-content">
+            <div class="alert-cow-name">Bella</div>
+            <div class="alert-meta">CLR-0007 · Fever Alert</div>
+            <div class="alert-time">2 hours ago</div>
+          </div>
+          <svg width="8" height="14" viewBox="0 0 8 14" fill="none" stroke="rgba(28,92,58,0.45)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="1,1 7,7 1,13"/>
+          </svg>
+        </div>
+
+        <div class="alert-row" onclick="navigate('alert-detail')" style="margin-bottom:24px;">
+          <div class="alert-dot"></div>
+          <div class="alert-row-content">
+            <div class="alert-cow-name">Rosie</div>
+            <div class="alert-meta">CLR-0014 · Rumination Drop</div>
+            <div class="alert-time">5 hours ago</div>
+          </div>
+          <svg width="8" height="14" viewBox="0 0 8 14" fill="none" stroke="rgba(28,92,58,0.45)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="1,1 7,7 1,13"/>
+          </svg>
+        </div>
+
+        <!-- All Collars -->
+        <div class="section-header">All Collars</div>
+        <div class="search-wrap">
+          <input class="search-input" type="text" placeholder="Search collars...">
+        </div>
+
+        <!-- Collar rows data -->
+        <div id="collar-list"></div>
+        <div style="height:24px;"></div>
+      </div>
+
+      <div class="tab-bar" id="tab-bar-dashboard">
+        <button class="tab-item active" onclick="switchTab('home')">
+          <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/>
+            <path d="M9 21V12h6v9"/>
+          </svg>
+          <span class="tab-label">Home</span>
+        </button>
+        <button class="tab-item" onclick="navigate('add')">
+          <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round">
+            <circle cx="12" cy="12" r="9"/>
+            <line x1="12" y1="8" x2="12" y2="16"/>
+            <line x1="8" y1="12" x2="16" y2="12"/>
+          </svg>
+          <span class="tab-label">Add</span>
+        </button>
+        <button class="tab-item" onclick="navigate('reports')">
+          <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <line x1="7" y1="12" x2="7" y2="17"/>
+            <line x1="12" y1="8" x2="12" y2="17"/>
+            <line x1="17" y1="15" x2="17" y2="17"/>
+          </svg>
+          <span class="tab-label">Reports</span>
+        </button>
+        <button class="tab-item" onclick="navigate('settings')">
+          <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+          </svg>
+          <span class="tab-label">Settings</span>
+        </button>
+      </div>
+      <div class="home-indicator"></div>
+    </div>
+
+    <!-- ======= SCREEN: COW DETAIL ======= -->
+    <div class="screen" id="screen-cow-detail">
+      <div class="status-bar">
+        <span class="status-bar-time">9:41</span>
+        <div class="status-bar-icons">
+          <svg width="16" height="12" viewBox="0 0 16 12"><rect x="0.5" y="3.5" width="3" height="8" rx="0.5" fill="white" stroke="none"/><rect x="4.5" y="2" width="3" height="9.5" rx="0.5" fill="white" stroke="none"/><rect x="8.5" y="0.5" width="3" height="11" rx="0.5" fill="white" stroke="none"/><rect x="12.5" y="4" width="3" height="7.5" rx="0.5" fill="rgba(255,255,255,0.4)" stroke="none"/></svg>
+          <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="2.5" stroke="white" stroke-width="1"/><rect x="22" y="3.5" width="2.5" height="5" rx="1" fill="white"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="white"/></svg>
+        </div>
+      </div>
+
+      <div class="nav-bar">
+        <button class="nav-btn left" onclick="goBack()">
+          <svg width="8" height="14" viewBox="0 0 8 14" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="7,1 1,7 7,13"/>
+          </svg>
+          <span style="font-size:17px;color:white;">Herd</span>
+        </button>
+        <span class="nav-title">Bella</span>
+        <button class="nav-btn right"><span style="font-size:17px;color:white;">Edit</span></button>
+      </div>
+
+      <div class="scroll-content">
+        <!-- Info card -->
+        <div class="info-card">
+          <div class="info-card-row" style="font-weight:500;">CLR-0007 &nbsp;|&nbsp; Holstein &nbsp;|&nbsp; 4 yrs</div>
+          <div class="info-card-meta">Last sync 2 min ago</div>
+          <div class="battery-row">
+            <span class="battery-label">Battery</span>
+            <div class="battery-track">
+              <div class="battery-fill" style="width:87%;"></div>
+            </div>
+            <span class="battery-pct">87%</span>
+          </div>
+        </div>
+
+        <!-- Vitals grid -->
+        <div class="vitals-grid">
+          <div class="vital-card">
+            <div class="vital-label">Temperature</div>
+            <div class="vital-value-row">
+              <span class="vital-value">40.4</span>
+              <span class="vital-unit">°C</span>
+            </div>
+            <div class="vital-trend">1.6 above baseline</div>
+          </div>
+          <div class="vital-card">
+            <div class="vital-label">Heart Rate</div>
+            <div class="vital-value-row">
+              <span class="vital-value">72</span>
+              <span class="vital-unit">bpm</span>
+            </div>
+            <div class="vital-trend">Normal</div>
+          </div>
+          <div class="vital-card">
+            <div class="vital-label">Activity</div>
+            <div class="vital-value-row">
+              <span class="vital-value">18</span>
+              <span class="vital-unit">%</span>
+            </div>
+            <div class="vital-trend">60% below average</div>
+          </div>
+          <div class="vital-card">
+            <div class="vital-label">Rumination</div>
+            <div class="vital-value-row">
+              <span class="vital-value">3.1</span>
+              <span class="vital-unit">h</span>
+            </div>
+            <div class="vital-trend">Low — normal 7-8h</div>
+          </div>
+        </div>
+
+        <!-- Temperature chart -->
+        <div class="chart-section">
+          <div class="chart-title">7-Day Temperature</div>
+          <div class="chart-wrap">
+            <svg class="chart-svg" height="120" viewBox="0 0 330 120" id="temp-chart"></svg>
+            <div style="display:flex;justify-content:space-between;margin-top:8px;">
+              <span style="font-size:11px;color:var(--g25);">Mon</span>
+              <span style="font-size:11px;color:var(--g25);">Tue</span>
+              <span style="font-size:11px;color:var(--g25);">Wed</span>
+              <span style="font-size:11px;color:var(--g25);">Thu</span>
+              <span style="font-size:11px;color:var(--g25);">Fri</span>
+              <span style="font-size:11px;color:var(--g25);">Sat</span>
+              <span style="font-size:11px;color:var(--g25);">Today</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Event log -->
+        <div class="event-log-section">
+          <div class="section-header" style="margin-bottom:0;">Event Log</div>
+          <div class="event-row">
+            <span class="event-time">Today 6:12 AM</span>
+            <span class="event-desc">Fever alert triggered</span>
+          </div>
+          <div class="event-row">
+            <span class="event-time">Today 4:40 AM</span>
+            <span class="event-desc">Rumination drop detected</span>
+          </div>
+          <div class="event-row">
+            <span class="event-time">Yesterday</span>
+            <span class="event-desc">Vet check — all clear</span>
+          </div>
+          <div class="event-row">
+            <span class="event-time">May 3</span>
+            <span class="event-desc">Battery at 87%</span>
+          </div>
+          <div class="event-row">
+            <span class="event-time">Apr 21</span>
+            <span class="event-desc">AI baseline established</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======= SCREEN: ALERT DETAIL ======= -->
+    <div class="screen" id="screen-alert-detail">
+      <div class="status-bar">
+        <span class="status-bar-time">9:41</span>
+        <div class="status-bar-icons">
+          <svg width="16" height="12" viewBox="0 0 16 12"><rect x="0.5" y="3.5" width="3" height="8" rx="0.5" fill="white" stroke="none"/><rect x="4.5" y="2" width="3" height="9.5" rx="0.5" fill="white" stroke="none"/><rect x="8.5" y="0.5" width="3" height="11" rx="0.5" fill="white" stroke="none"/><rect x="12.5" y="4" width="3" height="7.5" rx="0.5" fill="rgba(255,255,255,0.4)" stroke="none"/></svg>
+          <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="2.5" stroke="white" stroke-width="1"/><rect x="22" y="3.5" width="2.5" height="5" rx="1" fill="white"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="white"/></svg>
+        </div>
+      </div>
+
+      <div class="nav-bar">
+        <button class="nav-btn left" onclick="goBack()">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round">
+            <line x1="1" y1="1" x2="13" y2="13"/>
+            <line x1="13" y1="1" x2="1" y2="13"/>
+          </svg>
+        </button>
+        <span class="nav-title">Alert Detail</span>
+        <div style="min-width:44px;"></div>
+      </div>
+
+      <div class="scroll-content">
+        <!-- Header card -->
+        <div class="alert-header-card">
+          <div class="alert-tag">Alert</div>
+          <div class="alert-title">Fever Detected</div>
+          <div class="alert-subtitle">Bella — CLR-0007</div>
+          <div class="alert-time-txt">Today at 6:12 AM</div>
+          <span class="alert-pill">Check Immediately</span>
+        </div>
+
+        <!-- Two-col cards -->
+        <div class="two-col-cards">
+          <div class="data-card">
+            <div class="data-card-title">Readings</div>
+            <div class="data-row"><span class="data-key">Temperature</span><span class="data-val bold">40.4C</span></div>
+            <div class="data-row"><span class="data-key">Baseline</span><span class="data-val">38.8C</span></div>
+            <div class="data-row"><span class="data-key">Deviation</span><span class="data-val">+1.6C</span></div>
+            <div class="data-row"><span class="data-key">Species</span><span class="data-val">38.5-39.5</span></div>
+            <div class="data-row"><span class="data-key">Heart rate</span><span class="data-val">72 bpm</span></div>
+            <div class="data-row"><span class="data-key">Activity</span><span class="data-val">18%</span></div>
+            <div class="data-row"><span class="data-key">Rumination</span><span class="data-val">3.1h</span></div>
+          </div>
+          <div class="data-card">
+            <div class="data-card-title">AI Analysis</div>
+            <div class="data-row"><span class="data-key">Detection</span><span class="data-val">LSTM</span></div>
+            <div class="data-row"><span class="data-key">Trained on</span><span class="data-val">14 days</span></div>
+            <div class="data-row"><span class="data-key">Signals</span><span class="data-val">Temp + Act + Rum</span></div>
+            <div class="data-row"><span class="data-key">Pattern</span><span class="data-val">Early illness</span></div>
+            <div class="data-row"><span class="data-key">Possible</span><span class="data-val">Mastitis, Resp.</span></div>
+            <div class="data-row"><span class="data-key">False alarm</span><span class="data-val">8%</span></div>
+          </div>
+        </div>
+
+        <!-- What to do -->
+        <div class="wtd-section">
+          <div class="wtd-title">What To Do</div>
+          <div class="wtd-row">
+            <div class="wtd-num">1</div>
+            <div class="wtd-text">Locate Bella and check for visible signs of distress</div>
+          </div>
+          <div class="wtd-row">
+            <div class="wtd-num">2</div>
+            <div class="wtd-text">Take manual rectal temperature</div>
+          </div>
+          <div class="wtd-row">
+            <div class="wtd-num">3</div>
+            <div class="wtd-text">Check feed and water intake</div>
+          </div>
+          <div class="wtd-row">
+            <div class="wtd-num">4</div>
+            <div class="wtd-text">If confirmed above 39.5C, call vet</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="alert-footer" id="alert-footer">
+        <button class="btn-primary" onclick="logResponse()">Confirmed — Real Issue</button>
+        <button class="btn-secondary" onclick="logResponse()">Dismiss — False Alarm</button>
+        <div class="response-logged" id="response-logged">Response logged. AI updated.</div>
+      </div>
+    </div>
+
+    <!-- ======= SCREEN: ADD COLLAR ======= -->
+    <div class="screen" id="screen-add">
+      <div class="status-bar">
+        <span class="status-bar-time">9:41</span>
+        <div class="status-bar-icons">
+          <svg width="16" height="12" viewBox="0 0 16 12"><rect x="0.5" y="3.5" width="3" height="8" rx="0.5" fill="white" stroke="none"/><rect x="4.5" y="2" width="3" height="9.5" rx="0.5" fill="white" stroke="none"/><rect x="8.5" y="0.5" width="3" height="11" rx="0.5" fill="white" stroke="none"/><rect x="12.5" y="4" width="3" height="7.5" rx="0.5" fill="rgba(255,255,255,0.4)" stroke="none"/></svg>
+          <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="2.5" stroke="white" stroke-width="1"/><rect x="22" y="3.5" width="2.5" height="5" rx="1" fill="white"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="white"/></svg>
+        </div>
+      </div>
+
+      <div class="nav-bar">
+        <button class="nav-btn left" onclick="goBack()">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round">
+            <line x1="1" y1="1" x2="13" y2="13"/>
+            <line x1="13" y1="1" x2="1" y2="13"/>
+          </svg>
+        </button>
+        <span class="nav-title">Add Collar</span>
+        <div style="min-width:44px;"></div>
+      </div>
+
+      <div class="scroll-content">
+        <!-- QR card -->
+        <div class="qr-card" id="qr-card-area">
+          <!-- Scanner state -->
+          <div id="scanner-state">
+            <div class="qr-viewfinder">
+              <svg width="180" height="180" viewBox="0 0 180 180" fill="none" stroke="#1C5C3A" stroke-width="2" stroke-linecap="round">
+                <!-- Top-left corner -->
+                <line x1="10" y1="30" x2="10" y2="10"/><line x1="10" y1="10" x2="30" y2="10"/>
+                <!-- Top-right corner -->
+                <line x1="150" y1="10" x2="170" y2="10"/><line x1="170" y1="10" x2="170" y2="30"/>
+                <!-- Bottom-left corner -->
+                <line x1="10" y1="150" x2="10" y2="170"/><line x1="10" y1="170" x2="30" y2="170"/>
+                <!-- Bottom-right corner -->
+                <line x1="170" y1="150" x2="170" y2="170"/><line x1="150" y1="170" x2="170" y2="170"/>
+              </svg>
+            </div>
+            <div class="qr-caption">Point camera at collar label</div>
+          </div>
+          <!-- Success state -->
+          <div class="success-state" id="success-state">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="#1C5C3A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="24" cy="24" r="22"/>
+              <polyline points="14,24 21,31 34,17"/>
+            </svg>
+            <div class="success-title">Collar Activated</div>
+            <div class="success-sub">CLR-0025 is now monitoring Daisy</div>
+            <button class="btn-primary" style="margin-top:8px;width:200px;" onclick="goBack()">Done</button>
+          </div>
+        </div>
+
+        <!-- Or divider -->
+        <div class="or-divider" id="or-divider">
+          <div class="or-line"></div>
+          <span class="or-text">or enter manually</span>
+          <div class="or-line"></div>
+        </div>
+
+        <!-- Form fields -->
+        <div class="form-fields" id="form-fields">
+          <div class="form-field">
+            <div class="field-label">Collar ID</div>
+            <input class="field-input" id="collar-id-input" type="text" placeholder="e.g. CLR-0025">
+          </div>
+          <div class="form-field">
+            <div class="field-label">Cow Name</div>
+            <input class="field-input" type="text" placeholder="e.g. Daisy">
+          </div>
+          <div class="form-field">
+            <div class="field-label">Breed (optional)</div>
+            <input class="field-input" type="text" placeholder="e.g. Holstein">
+          </div>
+        </div>
+
+        <div class="add-btn-wrap" id="activate-btn-wrap">
+          <button class="btn-primary" onclick="activateCollar()">Activate Collar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======= SCREEN: REPORTS ======= -->
+    <div class="screen" id="screen-reports">
+      <div class="status-bar">
+        <span class="status-bar-time">9:41</span>
+        <div class="status-bar-icons">
+          <svg width="16" height="12" viewBox="0 0 16 12"><rect x="0.5" y="3.5" width="3" height="8" rx="0.5" fill="white" stroke="none"/><rect x="4.5" y="2" width="3" height="9.5" rx="0.5" fill="white" stroke="none"/><rect x="8.5" y="0.5" width="3" height="11" rx="0.5" fill="white" stroke="none"/><rect x="12.5" y="4" width="3" height="7.5" rx="0.5" fill="rgba(255,255,255,0.4)" stroke="none"/></svg>
+          <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="2.5" stroke="white" stroke-width="1"/><rect x="22" y="3.5" width="2.5" height="5" rx="1" fill="white"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="white"/></svg>
+        </div>
+      </div>
+      <div class="nav-bar">
+        <div style="min-width:44px;"></div>
+        <span class="nav-title">Reports</span>
+        <div style="min-width:44px;"></div>
+      </div>
+      <div class="coming-soon">Coming soon</div>
+      <div class="tab-bar">
+        <button class="tab-item" onclick="navigate('dashboard')">
+          <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
+          <span class="tab-label">Home</span>
+        </button>
+        <button class="tab-item" onclick="navigate('add')">
+          <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+          <span class="tab-label">Add</span>
+        </button>
+        <button class="tab-item active" onclick="navigate('reports')">
+          <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="7" y1="12" x2="7" y2="17"/><line x1="12" y1="8" x2="12" y2="17"/><line x1="17" y1="15" x2="17" y2="17"/></svg>
+          <span class="tab-label">Reports</span>
+        </button>
+        <button class="tab-item" onclick="navigate('settings')">
+          <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+          <span class="tab-label">Settings</span>
+        </button>
+      </div>
+      <div class="home-indicator"></div>
+    </div>
+
+    <!-- ======= SCREEN: SETTINGS ======= -->
+    <div class="screen" id="screen-settings">
+      <div class="status-bar">
+        <span class="status-bar-time">9:41</span>
+        <div class="status-bar-icons">
+          <svg width="16" height="12" viewBox="0 0 16 12"><rect x="0.5" y="3.5" width="3" height="8" rx="0.5" fill="white" stroke="none"/><rect x="4.5" y="2" width="3" height="9.5" rx="0.5" fill="white" stroke="none"/><rect x="8.5" y="0.5" width="3" height="11" rx="0.5" fill="white" stroke="none"/><rect x="12.5" y="4" width="3" height="7.5" rx="0.5" fill="rgba(255,255,255,0.4)" stroke="none"/></svg>
+          <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="2.5" stroke="white" stroke-width="1"/><rect x="22" y="3.5" width="2.5" height="5" rx="1" fill="white"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="white"/></svg>
+        </div>
+      </div>
+      <div class="nav-bar">
+        <div style="min-width:44px;"></div>
+        <span class="nav-title">Settings</span>
+        <div style="min-width:44px;"></div>
+      </div>
+      <div class="scroll-content">
+        <div class="settings-list">
+          <div class="settings-row" onclick="">
+            <span class="settings-row-label">Gateway Status</span>
+            <svg width="8" height="14" viewBox="0 0 8 14" fill="none" stroke="rgba(28,92,58,0.45)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1,1 7,7 1,13"/></svg>
+          </div>
+          <div class="settings-row" onclick="">
+            <span class="settings-row-label">Subscription</span>
+            <svg width="8" height="14" viewBox="0 0 8 14" fill="none" stroke="rgba(28,92,58,0.45)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1,1 7,7 1,13"/></svg>
+          </div>
+          <div class="settings-row" onclick="navigate('how-it-works')">
+            <span class="settings-row-label">How It Works</span>
+            <svg width="8" height="14" viewBox="0 0 8 14" fill="none" stroke="rgba(28,92,58,0.45)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1,1 7,7 1,13"/></svg>
+          </div>
+          <div class="settings-row" onclick="">
+            <span class="settings-row-label">Account</span>
+            <svg width="8" height="14" viewBox="0 0 8 14" fill="none" stroke="rgba(28,92,58,0.45)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1,1 7,7 1,13"/></svg>
+          </div>
+          <div class="settings-row" onclick="">
+            <span class="settings-row-label">Sign Out</span>
+            <svg width="8" height="14" viewBox="0 0 8 14" fill="none" stroke="rgba(28,92,58,0.45)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1,1 7,7 1,13"/></svg>
+          </div>
+        </div>
+      </div>
+      <div class="tab-bar">
+        <button class="tab-item" onclick="navigate('dashboard')">
+          <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
+          <span class="tab-label">Home</span>
+        </button>
+        <button class="tab-item" onclick="navigate('add')">
+          <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+          <span class="tab-label">Add</span>
+        </button>
+        <button class="tab-item" onclick="navigate('reports')">
+          <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="7" y1="12" x2="7" y2="17"/><line x1="12" y1="8" x2="12" y2="17"/><line x1="17" y1="15" x2="17" y2="17"/></svg>
+          <span class="tab-label">Reports</span>
+        </button>
+        <button class="tab-item active" onclick="navigate('settings')">
+          <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+          <span class="tab-label">Settings</span>
+        </button>
+      </div>
+      <div class="home-indicator"></div>
+    </div>
+
+    <!-- ======= SCREEN: HOW IT WORKS ======= -->
+    <div class="screen" id="screen-how-it-works">
+      <div class="status-bar">
+        <span class="status-bar-time">9:41</span>
+        <div class="status-bar-icons">
+          <svg width="16" height="12" viewBox="0 0 16 12"><rect x="0.5" y="3.5" width="3" height="8" rx="0.5" fill="white" stroke="none"/><rect x="4.5" y="2" width="3" height="9.5" rx="0.5" fill="white" stroke="none"/><rect x="8.5" y="0.5" width="3" height="11" rx="0.5" fill="white" stroke="none"/><rect x="12.5" y="4" width="3" height="7.5" rx="0.5" fill="rgba(255,255,255,0.4)" stroke="none"/></svg>
+          <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="2.5" stroke="white" stroke-width="1"/><rect x="22" y="3.5" width="2.5" height="5" rx="1" fill="white"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="white"/></svg>
+        </div>
+      </div>
+      <div class="nav-bar">
+        <button class="nav-btn left" onclick="goBack()">
+          <svg width="8" height="14" viewBox="0 0 8 14" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="7,1 1,7 7,13"/></svg>
+          <span style="font-size:17px;color:white;">Settings</span>
+        </button>
+        <span class="nav-title">How It Works</span>
+        <div style="min-width:44px;"></div>
+      </div>
+      <div class="scroll-content">
+        <!-- Step list -->
+        <div class="step-list">
+          <div class="step-row">
+            <div class="step-circle">1</div>
+            <div class="step-content">
+              <div class="step-title">Collar reads sensors every 30 seconds</div>
+              <div class="step-desc">Temperature, heart rate, and accelerometer data captured continuously</div>
+            </div>
+          </div>
+          <div class="step-row">
+            <div class="step-circle">2</div>
+            <div class="step-content">
+              <div class="step-title">LoRa radio sends data every 10-15 minutes</div>
+              <div class="step-desc">Low-power radio transmits to farm gateway up to 5km away</div>
+            </div>
+          </div>
+          <div class="step-row">
+            <div class="step-circle">3</div>
+            <div class="step-content">
+              <div class="step-title">Farm gateway collects all collar data</div>
+              <div class="step-desc">One gateway per farm handles the entire herd and pushes to cloud via WiFi or cellular</div>
+            </div>
+          </div>
+          <div class="step-row">
+            <div class="step-circle">4</div>
+            <div class="step-content">
+              <div class="step-title">Cloud cleans and stores time-series data</div>
+              <div class="step-desc">Data is validated, timestamped, and stored per animal</div>
+            </div>
+          </div>
+          <div class="step-row">
+            <div class="step-circle">5</div>
+            <div class="step-content">
+              <div class="step-title">AI model checks each cow against her baseline</div>
+              <div class="step-desc">Three-layer system compares readings to each animal's personal norm</div>
+            </div>
+          </div>
+          <div class="step-row">
+            <div class="step-circle">6</div>
+            <div class="step-content">
+              <div class="step-title">Push notification sent to your phone</div>
+              <div class="step-desc">Alert delivered within minutes of anomaly detection</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-header">AI Layers</div>
+        <div class="ai-cards">
+          <div class="ai-card">
+            <div class="ai-num-circle">1</div>
+            <div class="ai-card-body">
+              <div class="ai-card-title-row">
+                <span class="ai-card-name">Rule-Based Alerts</span>
+                <span class="timing-pill">Day 1</span>
+              </div>
+              <div class="ai-card-desc">Works immediately, no data needed. Fixed thresholds trigger the moment a reading crosses a limit.</div>
+            </div>
+          </div>
+          <div class="ai-card">
+            <div class="ai-num-circle">2</div>
+            <div class="ai-card-body">
+              <div class="ai-card-title-row">
+                <span class="ai-card-name">LSTM Autoencoder</span>
+                <span class="timing-pill">2-3 weeks</span>
+              </div>
+              <div class="ai-card-desc">Learns each cow personally. Flags deviations from her own norm, not species averages. Catches subtle patterns rules miss.</div>
+            </div>
+          </div>
+          <div class="ai-card">
+            <div class="ai-num-circle">3</div>
+            <div class="ai-card-body">
+              <div class="ai-card-title-row">
+                <span class="ai-card-name">Chronos Fine-Tuned</span>
+                <span class="timing-pill">6 months</span>
+              </div>
+              <div class="ai-card-desc">Predicts events 24-48h before they are visible. Fine-tuned Amazon time-series model trained on cattle data.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /screen-viewport -->
+</div><!-- /phone-shell -->
+
+<div class="controls">
+  <span onclick="triggerAlert()">Trigger Alert</span>
+  <span class="controls-sep">|</span>
+  <span onclick="resetApp()">Reset</span>
+  <span class="controls-sep">|</span>
+  <span onclick="navigate('dashboard')">Show: Dashboard</span>
+</div>
+
+<script>
+// ===== DATA =====
+const collars = [
+  { id: 'CLR-0007', name: 'Bella', breed: 'Holstein', temp: '40.4°C', hr: '72 bpm', alert: true },
+  { id: 'CLR-0014', name: 'Rosie', breed: 'Jersey', temp: '38.9°C', hr: '68 bpm', alert: true },
+  { id: 'CLR-0002', name: 'Nora', breed: 'Angus', temp: '38.6°C', hr: '65 bpm', alert: false },
+  { id: 'CLR-0009', name: 'Clover', breed: 'Holstein', temp: '38.8°C', hr: '70 bpm', alert: false },
+  { id: 'CLR-0011', name: 'Maple', breed: 'Hereford', temp: '38.7°C', hr: '67 bpm', alert: false },
+  { id: 'CLR-0016', name: 'Pearl', breed: 'Simmental', temp: '39.0°C', hr: '69 bpm', alert: false },
+  { id: 'CLR-0019', name: 'Sage', breed: 'Angus', temp: '38.5°C', hr: '64 bpm', alert: false },
+  { id: 'CLR-0023', name: 'June', breed: 'Jersey', temp: '38.9°C', hr: '71 bpm', alert: false },
+];
+
+// ===== NAVIGATION =====
+let screenStack = ['dashboard'];
+let addScanTimer = null;
+let addActivated = false;
+
+function getScreenId(name) {
+  const map = {
+    'dashboard': 'screen-dashboard',
+    'cow-detail': 'screen-cow-detail',
+    'alert-detail': 'screen-alert-detail',
+    'add': 'screen-add',
+    'reports': 'screen-reports',
+    'settings': 'screen-settings',
+    'how-it-works': 'screen-how-it-works',
+  };
+  return map[name];
+}
+
+function navigate(target) {
+  const currentName = screenStack[screenStack.length - 1];
+  if (currentName === target) return;
+
+  const currentEl = document.getElementById(getScreenId(currentName));
+  const targetEl = document.getElementById(getScreenId(target));
+
+  if (!targetEl) return;
+
+  // Push to stack
+  screenStack.push(target);
+
+  // Animate: current slides out to left, new comes from right
+  currentEl.classList.remove('active');
+  currentEl.style.transform = 'translateX(-30%)';
+  currentEl.style.transition = 'transform 280ms ease';
+
+  targetEl.style.transform = 'translateX(100%)';
+  targetEl.style.transition = 'none';
+  targetEl.classList.add('active');
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      targetEl.style.transition = 'transform 280ms ease';
+      targetEl.style.transform = 'translateX(0)';
+    });
+  });
+
+  // Clean up after transition
+  setTimeout(() => {
+    currentEl.style.transform = '';
+    currentEl.style.transition = '';
+  }, 290);
+
+  // Side effects
+  if (target === 'add') {
+    startAddScan();
+  }
+}
+
+function goBack() {
+  if (screenStack.length <= 1) return;
+
+  const currentName = screenStack.pop();
+  const prevName = screenStack[screenStack.length - 1];
+
+  const currentEl = document.getElementById(getScreenId(currentName));
+  const prevEl = document.getElementById(getScreenId(prevName));
+
+  // Animate: current slides to right, previous reveals
+  prevEl.style.transform = 'translateX(-30%)';
+  prevEl.style.transition = 'none';
+  prevEl.classList.add('active');
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      prevEl.style.transition = 'transform 280ms ease';
+      prevEl.style.transform = 'translateX(0)';
+
+      currentEl.style.transition = 'transform 280ms ease';
+      currentEl.style.transform = 'translateX(100%)';
+    });
+  });
+
+  setTimeout(() => {
+    currentEl.classList.remove('active');
+    currentEl.style.transform = '';
+    currentEl.style.transition = '';
+    prevEl.style.transform = '';
+    prevEl.style.transition = '';
+  }, 290);
+
+  // Clean add state
+  if (currentName === 'add') {
+    clearTimeout(addScanTimer);
+    addScanTimer = null;
+  }
+}
+
+// ===== COLLAR LIST =====
+function renderCollarList() {
+  const container = document.getElementById('collar-list');
+  container.innerHTML = collars.map(c => `
+    <div class="collar-row" onclick="navigate('cow-detail')">
+      <div class="collar-active-sq"></div>
+      <div class="collar-row-content">
+        <div class="collar-name">${c.name}${c.alert ? ' — Alert' : ''}</div>
+        <div class="collar-meta">${c.id} · ${c.breed}</div>
+      </div>
+      <div class="collar-vitals">
+        <div>${c.temp}</div>
+        <div>${c.hr}</div>
+      </div>
+      <svg width="8" height="14" viewBox="0 0 8 14" fill="none" stroke="rgba(28,92,58,0.45)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-left:8px;flex-shrink:0;"><polyline points="1,1 7,7 1,13"/></svg>
+    </div>
+  `).join('');
+}
+
+// ===== TEMPERATURE CHART =====
+function renderTempChart() {
+  const svg = document.getElementById('temp-chart');
+  if (!svg) return;
+
+  const temps = [38.8, 38.9, 39.0, 39.2, 39.8, 40.1, 40.4];
+  const baseline = 38.8;
+  const w = 330, h = 120;
+  const padL = 8, padR = 8, padT = 20, padB = 4;
+  const minT = 38.4, maxT = 40.8;
+
+  function xPos(i) { return padL + (i / 6) * (w - padL - padR); }
+  function yPos(t) { return padT + (1 - (t - minT) / (maxT - minT)) * (h - padT - padB); }
+
+  const points = temps.map((t, i) => `${xPos(i)},${yPos(t)}`).join(' ');
+  const baseY = yPos(baseline);
+
+  let html = '';
+
+  // Dashed baseline
+  html += `<line x1="${padL}" y1="${baseY}" x2="${w - padR}" y2="${baseY}" stroke="rgba(28,92,58,0.25)" stroke-width="1" stroke-dasharray="4,4"/>`;
+  html += `<text x="${padL}" y="${baseY - 4}" font-size="10" fill="rgba(28,92,58,0.45)" font-family="-apple-system,BlinkMacSystemFont,sans-serif">Baseline 38.8</text>`;
+
+  // Polyline
+  html += `<polyline points="${points}" fill="none" stroke="#1C5C3A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+
+  // Points
+  temps.forEach((t, i) => {
+    const x = xPos(i), y = yPos(t);
+    const r = i === 6 ? 5 : 3.5;
+    html += `<circle cx="${x}" cy="${y}" r="${r}" fill="#1C5C3A"/>`;
+    if (i === 6) {
+      html += `<text x="${x}" y="${y - 10}" font-size="10" fill="#1C5C3A" font-family="-apple-system,BlinkMacSystemFont,sans-serif" text-anchor="middle" font-weight="700">40.4</text>`;
+    }
+  });
+
+  svg.innerHTML = html;
+}
+
+// ===== ADD COLLAR =====
+function startAddScan() {
+  if (addActivated) {
+    resetAddScreen();
+  }
+  addActivated = false;
+  document.getElementById('scanner-state').style.display = '';
+  document.getElementById('success-state').style.display = 'none';
+  document.getElementById('or-divider').style.display = '';
+  document.getElementById('form-fields').style.display = '';
+  document.getElementById('activate-btn-wrap').style.display = '';
+  document.getElementById('collar-id-input').value = '';
+
+  clearTimeout(addScanTimer);
+  addScanTimer = setTimeout(() => {
+    document.getElementById('collar-id-input').value = 'CLR-0025';
+  }, 2000);
+}
+
+function resetAddScreen() {
+  clearTimeout(addScanTimer);
+  addActivated = false;
+  document.getElementById('scanner-state').style.display = '';
+  document.getElementById('success-state').style.display = 'none';
+  document.getElementById('or-divider').style.display = '';
+  document.getElementById('form-fields').style.display = '';
+  document.getElementById('activate-btn-wrap').style.display = '';
+  document.getElementById('collar-id-input').value = '';
+}
+
+function activateCollar() {
+  addActivated = true;
+  document.getElementById('scanner-state').style.display = 'none';
+  document.getElementById('success-state').style.display = 'flex';
+  document.getElementById('or-divider').style.display = 'none';
+  document.getElementById('form-fields').style.display = 'none';
+  document.getElementById('activate-btn-wrap').style.display = 'none';
+}
+
+// ===== ALERT DETAIL =====
+function logResponse() {
+  const footer = document.getElementById('alert-footer');
+  footer.querySelectorAll('button').forEach(b => b.style.display = 'none');
+  const msg = document.getElementById('response-logged');
+  msg.style.display = 'block';
+}
+
+// ===== CONTROLS =====
+function triggerAlert() {
+  navigate('alert-detail');
+}
+
+function resetApp() {
+  // Reset all screens to initial state
+  document.querySelectorAll('.screen').forEach(s => {
+    s.classList.remove('active');
+    s.style.transform = '';
+    s.style.transition = '';
+  });
+  screenStack = ['dashboard'];
+  document.getElementById('screen-dashboard').classList.add('active');
+
+  // Reset alert footer
+  const footer = document.getElementById('alert-footer');
+  footer.querySelectorAll('button').forEach(b => b.style.display = '');
+  document.getElementById('response-logged').style.display = 'none';
+
+  // Reset add screen
+  resetAddScreen();
+
+  // Reset scroll positions
+  document.querySelectorAll('.scroll-content').forEach(sc => sc.scrollTop = 0);
+}
+
+// ===== INIT =====
+renderCollarList();
+renderTempChart();
+</script>
+</body>
+</html>
