@@ -638,26 +638,8 @@ body {
         <div class="stat-block"><div class="stat-num" id="stat-alerts">2</div><div class="stat-lbl al">Alerts</div></div>
       </div>
 
-      <div class="section-header" style="padding-top:16px;">Active Alerts</div>
-      <div class="alert-row" onclick="navigate('alert-detail')">
-        <div class="alert-dot"></div>
-        <div class="alert-info">
-          <div class="alert-name">Bella</div>
-          <div class="alert-meta">CLR-0007 &middot; Fever Alert</div>
-        </div>
-        <span class="alert-time">2h ago</span>
-        <svg class="chev" width="8" height="13" viewBox="0 0 8 13" fill="none" stroke="rgba(28,92,58,0.3)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1,1 7,6.5 1,12"/></svg>
-        <div class="sep"></div>
-      </div>
-      <div class="alert-row" onclick="navigate('alert-detail')" style="margin-bottom:8px;">
-        <div class="alert-dot"></div>
-        <div class="alert-info">
-          <div class="alert-name">Rosie</div>
-          <div class="alert-meta">CLR-0014 &middot; Rumination Drop</div>
-        </div>
-        <span class="alert-time">5h ago</span>
-        <svg class="chev" width="8" height="13" viewBox="0 0 8 13" fill="none" stroke="rgba(28,92,58,0.3)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1,1 7,6.5 1,12"/></svg>
-      </div>
+      <div id="alert-section-header" class="section-header" style="padding-top:16px;">Active Alerts</div>
+      <div id="alert-list"></div>
 
       <div class="section-header">All Collars</div>
       <div class="search-wrap">
@@ -874,7 +856,7 @@ body {
         </div>
         <div class="form-field">
           <div class="field-label">Breed (optional)</div>
-          <input class="field-input" type="text" placeholder="e.g. Holstein">
+          <input class="field-input" id="breed-input" type="text" placeholder="e.g. Holstein">
         </div>
       </div>
 
@@ -999,7 +981,7 @@ body {
 </div><!-- /phone-shell -->
 
 <div class="controls">
-  <button onclick="navigate('alert-detail')">Trigger Alert</button>
+  <button onclick="triggerAlert()">Trigger Alert</button>
   <span class="controls-sep">|</span>
   <button onclick="resetApp()">Reset</button>
   <span class="controls-sep">|</span>
@@ -1008,16 +990,17 @@ body {
 
 <script>
 // ── DATA ──────────────────────────────────────────────
-const COLLARS = [
-  { id:'CLR-0007', name:'Bella',  breed:'Holstein',  temp:'40.4°C', hr:'72 bpm', alert:true  },
-  { id:'CLR-0014', name:'Rosie',  breed:'Jersey',    temp:'38.9°C', hr:'68 bpm', alert:true  },
-  { id:'CLR-0002', name:'Nora',   breed:'Angus',     temp:'38.6°C', hr:'65 bpm', alert:false },
-  { id:'CLR-0009', name:'Clover', breed:'Holstein',  temp:'38.8°C', hr:'70 bpm', alert:false },
-  { id:'CLR-0011', name:'Maple',  breed:'Hereford',  temp:'38.7°C', hr:'67 bpm', alert:false },
-  { id:'CLR-0016', name:'Pearl',  breed:'Simmental', temp:'39.0°C', hr:'69 bpm', alert:false },
-  { id:'CLR-0019', name:'Sage',   breed:'Angus',     temp:'38.5°C', hr:'64 bpm', alert:false },
-  { id:'CLR-0023', name:'June',   breed:'Jersey',    temp:'38.9°C', hr:'71 bpm', alert:false },
+const INITIAL_COLLARS = [
+  { id:'CLR-0007', name:'Bella',  breed:'Holstein',  temp:'40.4°C', hr:'72 bpm', alert:true,  alertType:'Fever Alert',      alertTime:'2h ago' },
+  { id:'CLR-0014', name:'Rosie',  breed:'Jersey',    temp:'38.9°C', hr:'68 bpm', alert:true,  alertType:'Rumination Drop',  alertTime:'5h ago' },
+  { id:'CLR-0002', name:'Nora',   breed:'Angus',     temp:'38.6°C', hr:'65 bpm', alert:false, alertType:'', alertTime:'' },
+  { id:'CLR-0009', name:'Clover', breed:'Holstein',  temp:'38.8°C', hr:'70 bpm', alert:false, alertType:'', alertTime:'' },
+  { id:'CLR-0011', name:'Maple',  breed:'Hereford',  temp:'38.7°C', hr:'67 bpm', alert:false, alertType:'', alertTime:'' },
+  { id:'CLR-0016', name:'Pearl',  breed:'Simmental', temp:'39.0°C', hr:'69 bpm', alert:false, alertType:'', alertTime:'' },
+  { id:'CLR-0019', name:'Sage',   breed:'Angus',     temp:'38.5°C', hr:'64 bpm', alert:false, alertType:'', alertTime:'' },
+  { id:'CLR-0023', name:'June',   breed:'Jersey',    temp:'38.9°C', hr:'71 bpm', alert:false, alertType:'', alertTime:'' },
 ];
+let COLLARS = [...INITIAL_COLLARS];
 
 // ── NAVIGATION ────────────────────────────────────────
 let stack = ['dashboard'];
@@ -1085,6 +1068,34 @@ function jumpHome() {
   stack = ['dashboard'];
 }
 
+// ── ALERT LIST (dashboard) ────────────────────────────
+function renderAlerts() {
+  const CHEV = `<svg class="chev" width="8" height="13" viewBox="0 0 8 13" fill="none" stroke="rgba(28,92,58,0.3)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1,1 7,6.5 1,12"/></svg>`;
+  const alerts = COLLARS.filter(c => c.alert);
+  const header = document.getElementById('alert-section-header');
+  const list   = document.getElementById('alert-list');
+  if (!list) return;
+
+  if (alerts.length === 0) {
+    header.style.display = 'none';
+    list.innerHTML = '';
+    return;
+  }
+
+  header.style.display = '';
+  list.innerHTML = alerts.map((c, i) => `
+    <div class="alert-row" onclick="navigate('alert-detail')" style="${i === alerts.length-1 ? 'margin-bottom:8px;' : ''}">
+      <div class="alert-dot"></div>
+      <div class="alert-info">
+        <div class="alert-name">${c.name}</div>
+        <div class="alert-meta">${c.id} &middot; ${c.alertType}</div>
+      </div>
+      <span class="alert-time">${c.alertTime}</span>
+      ${CHEV}
+      ${i < alerts.length - 1 ? '<div class="sep"></div>' : ''}
+    </div>`).join('');
+}
+
 // ── COLLAR LIST ───────────────────────────────────────
 function renderCollars(list) {
   const el = document.getElementById('collar-list');
@@ -1097,8 +1108,9 @@ function renderCollars(list) {
         <div class="collar-meta">${c.id} &middot; ${c.breed}</div>
       </div>
       <div class="collar-vitals">
-        <div class="vr">${c.temp}</div>
-        <div class="vr">${c.hr}</div>
+        ${c.temp === '--'
+          ? `<div class="vr" style="font-size:11px;color:var(--g25);font-weight:400;">No data yet</div>`
+          : `<div class="vr">${c.temp}</div><div class="vr">${c.hr}</div>`}
       </div>
       <svg class="chev" width="8" height="13" viewBox="0 0 8 13" fill="none" stroke="rgba(28,92,58,0.3)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1,1 7,6.5 1,12"/></svg>
       ${i < list.length - 1 ? '<div class="sep"></div>' : ''}
@@ -1251,12 +1263,13 @@ function resetAdd() {
 function activateCollar() {
   const id    = document.getElementById('collar-id-input').value.trim() || 'CLR-0025';
   const name  = document.getElementById('cow-name-input').value.trim()  || 'Daisy';
-  const breed = document.querySelector('#form-fields .form-field:last-child .field-input').value.trim() || 'Unknown';
+  const breed = document.getElementById('breed-input').value.trim()     || 'Unknown';
 
   // Only add if not already in list
   if (!COLLARS.find(c => c.id === id)) {
-    COLLARS.push({ id, name, breed, temp: '--', hr: '-- bpm', alert: false });
+    COLLARS.push({ id, name, breed, temp: '--', hr: '-- bpm', alert: false, alertType: '', alertTime: '' });
     renderCollars(COLLARS);
+    renderAlerts();
     updateStats();
     renderReports();
   }
@@ -1397,6 +1410,11 @@ function sendReport() {
 // ── RESET ─────────────────────────────────────────────
 function resetApp() {
   stopCamera();
+  closeSheet();
+
+  // Restore original data
+  COLLARS = [...INITIAL_COLLARS];
+
   document.querySelectorAll('.screen').forEach(s => {
     s.classList.remove('active');
     s.style.transform = s.style.transition = '';
@@ -1408,11 +1426,50 @@ function resetApp() {
   document.getElementById('search-input').value = '';
   resetAdd();
   renderCollars(COLLARS);
+  renderAlerts();
+  updateStats();
+  renderReports();
   document.querySelectorAll('.scroll-content').forEach(s => s.scrollTop = 0);
+}
+
+// ── RESET ADD (clear all fields) ──────────────────────
+const _origResetAdd = resetAdd;
+// Patch breed field clear into resetAdd
+function resetAdd() {
+  stopCamera();
+  showCam('cam-permission');
+  document.getElementById('collar-id-input').value = '';
+  document.getElementById('cow-name-input').value  = '';
+  const breedEl = document.getElementById('breed-input');
+  if (breedEl) breedEl.value = '';
+  document.getElementById('or-divider').style.display    = '';
+  document.getElementById('form-fields').style.display   = '';
+  document.getElementById('activate-wrap').style.display = '';
+  document.getElementById('activate-success').style.display = 'none';
+  document.getElementById('camera-card').style.display   = '';
+  document.getElementById('add-scroll').scrollTop = 0;
+}
+
+// ── TRIGGER ALERT (demo control) ──────────────────────
+function triggerAlert() {
+  // Pick the first non-alerting cow and put it into an alert state for demo
+  const target = COLLARS.find(c => !c.alert);
+  if (target) {
+    target.alert     = true;
+    target.alertType = 'Fever Alert';
+    target.alertTime = 'Just now';
+    target.temp      = '40.1°C';
+    renderCollars(COLLARS);
+    renderAlerts();
+    updateStats();
+    renderReports();
+  }
+  navigate('alert-detail');
 }
 
 // ── INIT ──────────────────────────────────────────────
 renderCollars(COLLARS);
+renderAlerts();
 renderChart();
 renderReports();
 updateStats();
