@@ -91,19 +91,12 @@ body {
 }
 .screen.active { transform: translateX(0); }
 
-/* STATUS BAR */
-.status-bar {
-  height: 44px;
+/* TOP SAFE AREA (replaces fake status bar) */
+.top-safe {
+  height: 50px;
   background: var(--green);
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  padding: 0 24px 8px;
   flex-shrink: 0;
-  z-index: 10;
 }
-.sb-time { font-size: 15px; font-weight: 700; color: var(--white); }
-.sb-icons { display: flex; align-items: center; gap: 6px; }
 
 /* NAV BAR */
 .nav-bar {
@@ -214,13 +207,19 @@ body {
 .chev { flex-shrink: 0; margin-left: 4px; display: block; }
 
 /* ══ DASHBOARD ══ */
+.stats-wrap {
+  margin: 16px 16px 0;
+  border: 1px solid var(--g12);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
 .stats-row {
   display: flex;
-  border-bottom: 1px solid var(--g10);
 }
 .stat-block {
   flex: 1;
-  padding: 24px 0 20px;
+  padding: 20px 0 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -230,12 +229,12 @@ body {
 .stat-block + .stat-block::before {
   content: '';
   position: absolute;
-  left: 0; top: 20px; bottom: 20px;
+  left: 0; top: 14px; bottom: 14px;
   width: 1px;
   background: var(--g10);
 }
 .stat-num { font-size: 34px; font-weight: 700; color: var(--green); line-height: 1; }
-.stat-lbl { font-size: 12px; font-weight: 400; color: var(--g45); text-transform: uppercase; letter-spacing: 0.05em; }
+.stat-lbl { font-size: 11px; font-weight: 400; color: var(--g45); text-transform: uppercase; letter-spacing: 0.06em; }
 .stat-lbl.al { font-weight: 700; color: var(--green); }
 
 .alert-row {
@@ -584,7 +583,7 @@ body {
   .product-label, .controls { display: none; }
   .phone-shell { width: 100%; height: 100dvh; border-radius: 0; border: none; position: fixed; top: 0; left: 0; }
   .dynamic-island { display: none; }
-  .status-bar { height: calc(44px + env(safe-area-inset-top)); padding-top: env(safe-area-inset-top); }
+  .top-safe { height: env(safe-area-inset-top); min-height: 0; }
   .tab-bar { height: calc(83px + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom); }
   .home-indicator { display: none; }
   .screen { width: 100%; height: 100dvh; }
@@ -601,27 +600,7 @@ body {
 
   <!-- ═══ DASHBOARD ═══ -->
   <div class="screen active" id="screen-dashboard">
-    <div class="status-bar">
-      <span class="sb-time">9:41</span>
-      <div class="sb-icons">
-        <svg width="17" height="12" viewBox="0 0 17 12" fill="none">
-          <rect x="0" y="4.5" width="3" height="7.5" rx="0.5" fill="rgba(255,255,255,0.4)"/>
-          <rect x="4.5" y="2.5" width="3" height="9.5" rx="0.5" fill="rgba(255,255,255,0.7)"/>
-          <rect x="9" y="0.5" width="3" height="11.5" rx="0.5" fill="white"/>
-          <rect x="13.5" y="0.5" width="3" height="11.5" rx="0.5" fill="white"/>
-        </svg>
-        <svg width="16" height="12" viewBox="0 0 16 12" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round">
-          <circle cx="8" cy="10" r="1" fill="white" stroke="none"/>
-          <path d="M5 7.5C6.1 6.3 7 5.8 8 5.8s1.9.5 3 1.7"/>
-          <path d="M2 4.8C4 2.5 5.8 1.5 8 1.5s4 1 6 3.3"/>
-        </svg>
-        <svg width="26" height="13" viewBox="0 0 26 13" fill="none">
-          <rect x="0.5" y="0.5" width="22" height="12" rx="3" stroke="white" stroke-width="1"/>
-          <rect x="23" y="4" width="2.5" height="5" rx="1" fill="white"/>
-          <rect x="2" y="2" width="17" height="9" rx="1.5" fill="white"/>
-        </svg>
-      </div>
-    </div>
+    <div class="top-safe"></div>
     <div class="nav-bar">
       <div class="nav-spacer"></div>
       <span class="nav-title">My Herd</span>
@@ -632,13 +611,15 @@ body {
       </button>
     </div>
     <div class="scroll-content">
-      <div class="stats-row">
-        <div class="stat-block"><div class="stat-num" id="stat-total">24</div><div class="stat-lbl">Total</div></div>
-        <div class="stat-block"><div class="stat-num" id="stat-active">23</div><div class="stat-lbl">Active</div></div>
-        <div class="stat-block"><div class="stat-num" id="stat-alerts">2</div><div class="stat-lbl al">Alerts</div></div>
+      <div class="stats-wrap">
+        <div class="stats-row">
+          <div class="stat-block"><div class="stat-num" id="stat-total">24</div><div class="stat-lbl">Total</div></div>
+          <div class="stat-block"><div class="stat-num" id="stat-active">23</div><div class="stat-lbl">Active</div></div>
+          <div class="stat-block"><div class="stat-num" id="stat-alerts">2</div><div class="stat-lbl al">Alerts</div></div>
+        </div>
       </div>
 
-      <div id="alert-section-header" class="section-header" style="padding-top:16px;">Active Alerts</div>
+      <div id="alert-section-header" class="section-header">Active Alerts</div>
       <div id="alert-list"></div>
 
       <div class="section-header">All Collars</div>
@@ -671,7 +652,7 @@ body {
 
   <!-- ═══ COW DETAIL ═══ -->
   <div class="screen" id="screen-cow-detail">
-    <div class="status-bar"><span class="sb-time">9:41</span><div class="sb-icons"><svg width="26" height="13" viewBox="0 0 26 13" fill="none"><rect x="0.5" y="0.5" width="22" height="12" rx="3" stroke="white" stroke-width="1"/><rect x="23" y="4" width="2.5" height="5" rx="1" fill="white"/><rect x="2" y="2" width="17" height="9" rx="1.5" fill="white"/></svg></div></div>
+    <div class="top-safe"></div>
     <div class="nav-bar">
       <button class="nav-btn" onclick="goBack()">
         <svg width="8" height="13" viewBox="0 0 8 13" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="7,1 1,6.5 7,12"/></svg>
@@ -722,7 +703,7 @@ body {
 
   <!-- ═══ ALERT DETAIL ═══ -->
   <div class="screen" id="screen-alert-detail">
-    <div class="status-bar"><span class="sb-time">9:41</span><div class="sb-icons"><svg width="26" height="13" viewBox="0 0 26 13" fill="none"><rect x="0.5" y="0.5" width="22" height="12" rx="3" stroke="white" stroke-width="1"/><rect x="23" y="4" width="2.5" height="5" rx="1" fill="white"/><rect x="2" y="2" width="17" height="9" rx="1.5" fill="white"/></svg></div></div>
+    <div class="top-safe"></div>
     <div class="nav-bar">
       <button class="nav-btn" onclick="goBack()">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round">
@@ -778,7 +759,7 @@ body {
 
   <!-- ═══ ADD COLLAR ═══ -->
   <div class="screen" id="screen-add">
-    <div class="status-bar"><span class="sb-time">9:41</span><div class="sb-icons"><svg width="26" height="13" viewBox="0 0 26 13" fill="none"><rect x="0.5" y="0.5" width="22" height="12" rx="3" stroke="white" stroke-width="1"/><rect x="23" y="4" width="2.5" height="5" rx="1" fill="white"/><rect x="2" y="2" width="17" height="9" rx="1.5" fill="white"/></svg></div></div>
+    <div class="top-safe"></div>
     <div class="nav-bar">
       <button class="nav-btn" onclick="stopCamera(); goBack();">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round">
@@ -877,7 +858,7 @@ body {
 
   <!-- ═══ REPORTS ═══ -->
   <div class="screen" id="screen-reports">
-    <div class="status-bar"><span class="sb-time">9:41</span></div>
+    <div class="top-safe"></div>
     <div class="nav-bar"><div class="nav-spacer"></div><span class="nav-title">Reports</span><div class="nav-spacer"></div></div>
     <div class="scroll-content">
       <div class="section-header" style="padding-top:16px;">Herd Summary</div>
@@ -913,7 +894,7 @@ body {
 
   <!-- ═══ SETTINGS ═══ -->
   <div class="screen" id="screen-settings">
-    <div class="status-bar"><span class="sb-time">9:41</span></div>
+    <div class="top-safe"></div>
     <div class="nav-bar"><div class="nav-spacer"></div><span class="nav-title">Settings</span><div class="nav-spacer"></div></div>
     <div class="scroll-content">
       <div style="height:8px;"></div>
@@ -934,7 +915,7 @@ body {
 
   <!-- ═══ HOW IT WORKS ═══ -->
   <div class="screen" id="screen-how-it-works">
-    <div class="status-bar"><span class="sb-time">9:41</span></div>
+    <div class="top-safe"></div>
     <div class="nav-bar">
       <button class="nav-btn" onclick="goBack()">
         <svg width="8" height="13" viewBox="0 0 8 13" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="7,1 1,6.5 7,12"/></svg>
@@ -1068,9 +1049,18 @@ function jumpHome() {
   stack = ['dashboard'];
 }
 
+// ── HELPERS ───────────────────────────────────────────
+const CHEV = `<svg class="chev" width="8" height="13" viewBox="0 0 8 13" fill="none" stroke="rgba(28,92,58,0.3)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1,1 7,6.5 1,12"/></svg>`;
+
+function collarNum(id) {
+  const m = id.match(/(\d+)$/);
+  if (!m) return '??';
+  const n = parseInt(m[1]);
+  return n < 10 ? '0' + n : String(n);
+}
+
 // ── ALERT LIST (dashboard) ────────────────────────────
 function renderAlerts() {
-  const CHEV = `<svg class="chev" width="8" height="13" viewBox="0 0 8 13" fill="none" stroke="rgba(28,92,58,0.3)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1,1 7,6.5 1,12"/></svg>`;
   const alerts = COLLARS.filter(c => c.alert);
   const header = document.getElementById('alert-section-header');
   const list   = document.getElementById('alert-list');
@@ -1087,8 +1077,8 @@ function renderAlerts() {
     <div class="alert-row" onclick="navigate('alert-detail')" style="${i === alerts.length-1 ? 'margin-bottom:8px;' : ''}">
       <div class="alert-dot"></div>
       <div class="alert-info">
-        <div class="alert-name">${c.name}</div>
-        <div class="alert-meta">${c.id} &middot; ${c.alertType}</div>
+        <div class="alert-name">${c.id}</div>
+        <div class="alert-meta">${c.breed} &middot; ${c.alertType}</div>
       </div>
       <span class="alert-time">${c.alertTime}</span>
       ${CHEV}
@@ -1102,17 +1092,17 @@ function renderCollars(list) {
   if (!el) return;
   el.innerHTML = list.map((c, i) => `
     <div class="collar-row" onclick="navigate('cow-detail')">
-      <div class="cow-avatar">${c.name[0]}</div>
+      <div class="cow-avatar" style="font-size:13px;">${collarNum(c.id)}</div>
       <div class="collar-info">
-        <div class="collar-name">${c.name}${c.alert ? ' <span class="alert-badge">Alert</span>' : ''}</div>
-        <div class="collar-meta">${c.id} &middot; ${c.breed}</div>
+        <div class="collar-name">${c.id}${c.alert ? ' <span class="alert-badge">Alert</span>' : ''}</div>
+        <div class="collar-meta">${c.breed}</div>
       </div>
       <div class="collar-vitals">
         ${c.temp === '--'
-          ? `<div class="vr" style="font-size:11px;color:var(--g25);font-weight:400;">No data yet</div>`
+          ? `<div class="vr" style="font-size:11px;color:var(--g25);font-weight:400;">Pending</div>`
           : `<div class="vr">${c.temp}</div><div class="vr">${c.hr}</div>`}
       </div>
-      <svg class="chev" width="8" height="13" viewBox="0 0 8 13" fill="none" stroke="rgba(28,92,58,0.3)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1,1 7,6.5 1,12"/></svg>
+      ${CHEV}
       ${i < list.length - 1 ? '<div class="sep"></div>' : ''}
     </div>`).join('');
 }
@@ -1305,9 +1295,9 @@ function renderReports() {
       ? alerts.map((c, i) => `
           <div class="rpt-collar-row">
             <div class="rpt-cow-dot"></div>
-            <div>
-              <div class="rpt-cow-name">${c.name}</div>
-              <div class="rpt-cow-meta">${c.id} &middot; Fever Alert</div>
+            <div style="flex:1;">
+              <div class="rpt-cow-name">${c.id}</div>
+              <div class="rpt-cow-meta">${c.breed} &middot; ${c.alertType}</div>
             </div>
             <div class="rpt-cow-temp">${c.temp}</div>
             ${i < alerts.length - 1 ? '<div class="sep"></div>' : ''}
@@ -1320,12 +1310,12 @@ function renderReports() {
   if (listEl) {
     listEl.innerHTML = COLLARS.map((c, i) => `
       <div class="rpt-collar-row">
-        <div class="rpt-cow-dot" style="${c.alert ? '' : 'opacity:0.4'}"></div>
+        <div class="rpt-cow-dot" style="${c.alert ? '' : 'opacity:0.35'}"></div>
         <div style="flex:1;">
-          <div class="rpt-cow-name">${c.name}${c.alert ? ' <span class="alert-badge">Alert</span>' : ''}</div>
-          <div class="rpt-cow-meta">${c.id} &middot; ${c.breed}</div>
+          <div class="rpt-cow-name">${c.id}${c.alert ? ' <span class="alert-badge">Alert</span>' : ''}</div>
+          <div class="rpt-cow-meta">${c.breed}</div>
         </div>
-        <div class="rpt-cow-temp">${c.temp}</div>
+        <div class="rpt-cow-temp">${c.temp === '--' ? '—' : c.temp}</div>
         ${i < COLLARS.length - 1 ? '<div class="sep"></div>' : ''}
       </div>`).join('');
   }
