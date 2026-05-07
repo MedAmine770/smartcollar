@@ -1,0 +1,1468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>SmartCollar</title>
+<meta name="description" content="Livestock health monitoring for farmers">
+<meta name="theme-color" content="#1C5C3A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SmartCollar">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+:root {
+  --green: #103823;
+  --white: #FFFFFF;
+  --g08: rgba(28,92,58,0.08);
+  --g10: rgba(28,92,58,0.10);
+  --g12: rgba(28,92,58,0.12);
+  --g15: rgba(28,92,58,0.15);
+  --g18: rgba(28,92,58,0.18);
+  --g25: rgba(28,92,58,0.25);
+  --g28: rgba(28,92,58,0.28);
+  --g45: rgba(28,92,58,0.45);
+  --w60: rgba(255,255,255,0.6);
+}
+
+html, body { height: 100%; }
+
+body {
+  background: #F2F2F2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;
+  padding: 40px 20px;
+}
+
+/* PHONE SHELL */
+.product-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: rgba(28,92,58,0.45);
+  margin-bottom: 14px;
+  font-weight: 500;
+}
+
+.phone-shell {
+  width: 393px;
+  height: 852px;
+  border-radius: 55px;
+  border: 1px solid rgba(0,0,0,0.08);
+  background: var(--white);
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.dynamic-island {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 126px;
+  height: 36px;
+  background: #000;
+  border-radius: 18px;
+  z-index: 200;
+}
+
+.screen-viewport { position: absolute; inset: 0; overflow: hidden; }
+
+/* SCREENS */
+.screen {
+  position: absolute;
+  inset: 0;
+  background: var(--white);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 280ms ease;
+  will-change: transform;
+  overflow: hidden;
+}
+.screen.active { transform: translateX(0); }
+
+/* TOP SAFE AREA (replaces fake status bar) */
+.top-safe {
+  height: 50px;
+  background: var(--green);
+  flex-shrink: 0;
+}
+
+/* NAV BAR */
+.nav-bar {
+  height: 44px;
+  background: var(--green);
+  display: flex;
+  align-items: center;
+  padding: 0 4px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+}
+.nav-title {
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--white);
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  pointer-events: none;
+}
+.nav-btn {
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0 12px;
+  font-size: 17px;
+  font-weight: 400;
+  color: var(--white);
+  font-family: inherit;
+}
+.nav-spacer { min-width: 44px; }
+
+/* SCROLL */
+.scroll-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.scroll-content::-webkit-scrollbar { display: none; }
+
+/* TAB BAR */
+.tab-bar {
+  height: 83px;
+  background: var(--white);
+  border-top: 1px solid var(--g10);
+  display: flex;
+  align-items: flex-start;
+  padding-top: 10px;
+  flex-shrink: 0;
+  z-index: 10;
+}
+.tab-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 0;
+}
+.tab-label { font-size: 10px; font-weight: 500; letter-spacing: 0.02em; }
+.tab-btn.active .tab-label { color: var(--green); }
+.tab-btn.active svg { stroke: var(--green); }
+.tab-btn:not(.active) .tab-label { color: var(--g28); }
+.tab-btn:not(.active) svg { stroke: var(--g28); }
+.tab-btn svg { display: block; width: 24px; height: 24px; fill: none; }
+
+.home-indicator {
+  position: absolute;
+  bottom: 8px; left: 50%;
+  transform: translateX(-50%);
+  width: 134px; height: 5px;
+  background: var(--g18);
+  border-radius: 3px;
+}
+
+/* SECTION HEADER */
+.section-header {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--g45);
+  padding: 20px 16px 8px;
+}
+
+/* SEPARATOR */
+.sep {
+  position: absolute;
+  bottom: 0; left: 16px; right: 0;
+  height: 1px;
+  background: var(--g10);
+}
+
+/* CHEVRON */
+.chev { flex-shrink: 0; margin-left: 4px; display: block; }
+
+/* ══ DASHBOARD ══ */
+.stats-wrap {
+  margin: 16px 16px 0;
+  border: 1px solid var(--g12);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.stats-row {
+  display: flex;
+}
+.stat-block {
+  flex: 1;
+  padding: 20px 0 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  position: relative;
+}
+.stat-block + .stat-block::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 14px; bottom: 14px;
+  width: 1px;
+  background: var(--g10);
+}
+.stat-num { font-size: 34px; font-weight: 700; color: var(--green); line-height: 1; }
+.stat-lbl { font-size: 11px; font-weight: 400; color: var(--g45); text-transform: uppercase; letter-spacing: 0.06em; }
+.stat-lbl.al { font-weight: 700; color: var(--green); }
+
+.alert-row {
+  display: flex;
+  align-items: center;
+  padding: 14px 16px;
+  gap: 12px;
+  cursor: pointer;
+  position: relative;
+}
+.alert-dot { width: 6px; height: 6px; background: var(--green); flex-shrink: 0; }
+.alert-info { flex: 1; min-width: 0; }
+.alert-name { font-size: 15px; font-weight: 700; color: var(--green); }
+.alert-meta { font-size: 13px; color: var(--g45); margin-top: 2px; }
+.alert-time { font-size: 11px; color: var(--g25); white-space: nowrap; flex-shrink: 0; }
+
+.search-wrap { padding: 8px 16px 4px; }
+.search-input {
+  width: 100%;
+  height: 44px;
+  border: 1px solid var(--g12);
+  border-radius: 10px;
+  padding: 0 14px;
+  font-size: 15px;
+  color: var(--green);
+  background: var(--g08);
+  font-family: inherit;
+  outline: none;
+}
+.search-input::placeholder { color: var(--g25); }
+.search-input:focus { border-color: var(--green); background: var(--white); }
+
+.collar-row {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  gap: 12px;
+  cursor: pointer;
+  position: relative;
+  min-height: 64px;
+}
+.collar-row .sep { left: 72px; }
+.cow-avatar {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: var(--g08);
+  border: 1px solid var(--g12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--green);
+  flex-shrink: 0;
+}
+.collar-info { flex: 1; min-width: 0; }
+.collar-name {
+  font-size: 15px; font-weight: 700; color: var(--green);
+  display: flex; align-items: center; gap: 6px;
+}
+.alert-badge {
+  font-size: 10px; font-weight: 700; color: var(--green);
+  border: 1px solid var(--green);
+  border-radius: 4px;
+  padding: 1px 5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.collar-meta { font-size: 13px; color: var(--g45); margin-top: 2px; }
+.collar-vitals { text-align: right; flex-shrink: 0; }
+.vr { font-size: 13px; color: var(--green); font-weight: 500; }
+.vr + .vr { margin-top: 2px; color: var(--g45); font-weight: 400; }
+
+/* ══ COW DETAIL ══ */
+.info-card { margin: 16px; border: 1px solid var(--g12); border-radius: 12px; padding: 16px; }
+.info-header { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+.info-avatar {
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  background: var(--g08);
+  border: 1px solid var(--g12);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; font-weight: 700; color: var(--green);
+  flex-shrink: 0;
+}
+.info-name { font-size: 17px; font-weight: 700; color: var(--green); margin-bottom: 2px; }
+.info-meta { font-size: 13px; color: var(--g45); }
+.info-div { height: 1px; background: var(--g10); margin-bottom: 14px; }
+.battery-row { display: flex; align-items: center; gap: 12px; }
+.battery-lbl { font-size: 13px; color: var(--g45); width: 50px; flex-shrink: 0; }
+.battery-track { flex: 1; height: 4px; background: var(--g08); border-radius: 2px; border: 1px solid var(--g12); overflow: hidden; }
+.battery-fill { height: 100%; background: var(--green); border-radius: 2px; }
+.battery-pct { font-size: 13px; color: var(--g45); width: 36px; text-align: right; flex-shrink: 0; }
+
+.vitals-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 16px 16px; }
+.vital-card { border: 1px solid var(--g12); border-radius: 12px; padding: 14px; }
+.vital-lbl { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; color: var(--g45); margin-bottom: 10px; }
+.vital-val-row { display: flex; align-items: baseline; gap: 3px; margin-bottom: 4px; }
+.vital-val { font-size: 28px; font-weight: 700; color: var(--green); line-height: 1; }
+.vital-unit { font-size: 13px; color: var(--g45); }
+.vital-trend { font-size: 11px; color: var(--g25); line-height: 1.3; }
+
+.chart-section { margin: 0 16px 16px; }
+.chart-title { font-size: 15px; font-weight: 700; color: var(--green); margin-bottom: 12px; }
+.chart-wrap { border: 1px solid var(--g12); border-radius: 12px; padding: 16px 16px 10px; }
+.chart-days { display: flex; justify-content: space-between; margin-top: 8px; }
+.chart-days span { font-size: 11px; color: var(--g25); }
+
+.event-row { display: flex; gap: 12px; padding: 11px 16px; position: relative; min-height: 44px; align-items: flex-start; }
+.event-row .sep { left: 16px; }
+.ev-time { font-size: 11px; color: var(--g25); flex-shrink: 0; width: 90px; padding-top: 1px; }
+.ev-desc { font-size: 13px; color: var(--green); line-height: 1.4; }
+
+/* ══ ALERT DETAIL ══ */
+.ah-card { margin: 16px; border: 1px solid var(--g12); border-radius: 12px; padding: 20px; }
+.ah-tag { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.07em; color: var(--g45); margin-bottom: 8px; }
+.ah-title { font-size: 22px; font-weight: 700; color: var(--green); margin-bottom: 4px; }
+.ah-sub { font-size: 15px; color: var(--g45); margin-bottom: 3px; }
+.ah-time { font-size: 13px; color: var(--g25); margin-bottom: 14px; }
+.ah-pill {
+  display: inline-flex; align-items: center;
+  border: 1px solid var(--green); border-radius: 6px;
+  padding: 4px 10px; font-size: 11px; font-weight: 500; color: var(--green);
+}
+.two-col { display: flex; gap: 8px; margin: 0 16px 16px; }
+.data-card { flex: 1; border: 1px solid var(--g12); border-radius: 12px; padding: 14px; }
+.dc-title { font-size: 13px; font-weight: 700; color: var(--green); margin-bottom: 10px; }
+.dc-row { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; margin-bottom: 7px; }
+.dc-key { font-size: 11px; color: var(--g45); flex-shrink: 0; }
+.dc-val { font-size: 11px; color: var(--green); text-align: right; }
+.dc-val.bold { font-weight: 700; }
+.wtd-section { margin: 0 16px 24px; }
+.wtd-title { font-size: 17px; font-weight: 700; color: var(--green); margin-bottom: 14px; }
+.wtd-row { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 14px; }
+.wtd-num {
+  width: 24px; height: 24px; border: 1px solid var(--green); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: var(--green); flex-shrink: 0;
+}
+.wtd-text { font-size: 13px; color: var(--green); padding-top: 4px; line-height: 1.4; }
+.alert-footer { background: var(--white); border-top: 1px solid var(--g12); padding: 16px; flex-shrink: 0; }
+.btn-primary { width: 100%; height: 50px; background: var(--green); color: var(--white); font-size: 17px; font-weight: 500; border: none; border-radius: 12px; cursor: pointer; font-family: inherit; }
+.btn-secondary { width: 100%; height: 50px; background: var(--white); color: var(--green); font-size: 17px; font-weight: 500; border: 1px solid var(--green); border-radius: 12px; cursor: pointer; font-family: inherit; margin-top: 8px; }
+.resp-logged { font-size: 13px; color: var(--g45); text-align: center; padding: 14px 0; display: none; }
+
+/* ══ ADD COLLAR / CAMERA ══ */
+.camera-card { margin: 16px; border: 1px solid var(--g12); border-radius: 12px; overflow: hidden; }
+.cam-state { display: none; }
+.cam-state.visible { display: flex; }
+
+.cam-permission { flex-direction: column; align-items: center; padding: 32px 24px; gap: 12px; }
+.cam-icon {
+  width: 56px; height: 56px; border: 1px solid var(--g12); border-radius: 50%;
+  background: var(--g08); display: flex; align-items: center; justify-content: center; margin-bottom: 4px;
+}
+.cam-perm-title { font-size: 17px; font-weight: 700; color: var(--green); text-align: center; }
+.cam-perm-desc { font-size: 13px; color: var(--g45); text-align: center; line-height: 1.5; }
+.cam-allow-btn { width: 100%; height: 50px; background: var(--green); color: var(--white); font-size: 17px; font-weight: 500; border: none; border-radius: 12px; cursor: pointer; font-family: inherit; margin-top: 4px; }
+
+.cam-loading { flex-direction: column; align-items: center; padding: 48px 24px; gap: 12px; }
+.cam-loading-text { font-size: 15px; color: var(--g45); }
+
+.cam-active { flex-direction: column; align-items: center; }
+.cam-viewfinder { width: 100%; aspect-ratio: 1; position: relative; background: #000; overflow: hidden; }
+#camera-video { width: 100%; height: 100%; object-fit: cover; display: block; }
+#camera-canvas { display: none; }
+.corner-svg { position: absolute; inset: 0; pointer-events: none; width: 100%; height: 100%; }
+.scan-line {
+  position: absolute; left: 10%; right: 10%; height: 1.5px;
+  background: var(--green); opacity: 0.75;
+  animation: scanmove 2.2s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes scanmove { 0%{top:10%} 50%{top:88%} 100%{top:10%} }
+.cam-hint { font-size: 13px; color: var(--g45); text-align: center; padding: 14px 16px; }
+
+.cam-denied { flex-direction: column; align-items: center; padding: 28px 24px; gap: 8px; }
+.cam-denied-title { font-size: 15px; font-weight: 700; color: var(--green); text-align: center; }
+.cam-denied-desc { font-size: 13px; color: var(--g45); text-align: center; line-height: 1.5; }
+
+.cam-scanned { flex-direction: column; align-items: center; padding: 28px 24px; gap: 8px; }
+.cam-scanned-id { font-size: 22px; font-weight: 700; color: var(--green); }
+.cam-scanned-sub { font-size: 13px; color: var(--g45); text-align: center; }
+
+.or-divider { display: flex; align-items: center; gap: 12px; margin: 16px; }
+.or-line { flex: 1; height: 1px; background: var(--g12); }
+.or-text { font-size: 11px; color: var(--g25); white-space: nowrap; }
+
+.form-fields { padding: 0 16px; }
+.form-field { margin-bottom: 20px; }
+.field-label { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.07em; color: var(--g45); margin-bottom: 6px; }
+.field-input { width: 100%; height: 44px; border: none; border-bottom: 1px solid var(--g15); background: transparent; font-size: 15px; color: var(--green); font-family: inherit; outline: none; padding: 0; }
+.field-input::placeholder { color: var(--g25); }
+.field-input:focus { border-bottom-color: var(--green); }
+.add-btn-wrap { padding: 8px 16px 32px; }
+
+.activate-success { display: none; flex-direction: column; align-items: center; padding: 32px 24px; gap: 10px; }
+.succ-title { font-size: 22px; font-weight: 700; color: var(--green); }
+.succ-sub { font-size: 15px; color: var(--g45); text-align: center; }
+.succ-done { width: 200px; height: 50px; background: var(--green); color: var(--white); font-size: 17px; font-weight: 500; border: none; border-radius: 12px; cursor: pointer; font-family: inherit; margin-top: 8px; }
+
+/* ══ SETTINGS ══ */
+.settings-row { display: flex; align-items: center; height: 52px; padding: 0 16px; cursor: pointer; position: relative; }
+.settings-row .sep { left: 16px; }
+.settings-row-label { font-size: 17px; color: var(--green); flex: 1; }
+
+/* ══ REPORTS ══ */
+.placeholder-screen { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 15px; color: var(--g45); }
+
+/* ══ HOW IT WORKS ══ */
+.step-row { display: flex; align-items: flex-start; gap: 14px; padding: 14px 16px; position: relative; }
+.step-row .sep { left: 16px; }
+.step-circle { width: 36px; height: 36px; border-radius: 50%; background: var(--g08); border: 1px solid var(--g12); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; color: var(--green); flex-shrink: 0; }
+.step-title { font-size: 15px; font-weight: 700; color: var(--green); margin-bottom: 3px; }
+.step-desc { font-size: 13px; color: var(--g45); line-height: 1.4; }
+.ai-cards { padding: 0 16px 32px; display: flex; flex-direction: column; gap: 8px; }
+.ai-card { border: 1px solid var(--g12); border-radius: 12px; padding: 16px; display: flex; gap: 12px; }
+.ai-num { width: 24px; height: 24px; border-radius: 50%; background: var(--green); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--white); flex-shrink: 0; }
+.ai-title-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; flex-wrap: wrap; }
+.ai-name { font-size: 15px; font-weight: 700; color: var(--green); }
+.timing-pill { border: 1px solid var(--green); border-radius: 4px; padding: 2px 7px; font-size: 11px; font-weight: 500; color: var(--green); }
+.ai-desc { font-size: 13px; color: var(--g45); line-height: 1.4; }
+
+/* ══ CONTROLS ══ */
+.controls { margin-top: 18px; font-size: 11px; color: rgba(28,92,58,0.32); display: flex; gap: 14px; align-items: center; }
+.controls button { background: none; border: none; font-size: 11px; color: rgba(28,92,58,0.32); cursor: pointer; font-family: inherit; padding: 0; }
+.controls button:hover { color: var(--green); }
+.controls-sep { color: rgba(28,92,58,0.15); }
+
+/* ══ REPORTS SCREEN ══ */
+.rpt-summary-card { margin: 0 16px 4px; border: 1px solid var(--g12); border-radius: 12px; overflow: hidden; }
+.rpt-stat-row { display: flex; }
+.rpt-stat { flex: 1; padding: 20px 0 16px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.rpt-stat-div { width: 1px; background: var(--g10); margin: 16px 0; }
+.rpt-stat-num { font-size: 28px; font-weight: 700; color: var(--green); line-height: 1; }
+.rpt-stat-lbl { font-size: 11px; color: var(--g45); text-transform: uppercase; letter-spacing: 0.05em; }
+.rpt-footer { padding: 16px; border-top: 1px solid var(--g10); background: var(--white); flex-shrink: 0; }
+
+.rpt-collar-row { display: flex; align-items: center; padding: 11px 16px; gap: 10px; position: relative; min-height: 44px; }
+.rpt-collar-row .sep { left: 16px; }
+.rpt-cow-dot { width: 6px; height: 6px; background: var(--green); flex-shrink: 0; }
+.rpt-cow-name { font-size: 14px; font-weight: 700; color: var(--green); flex: 1; }
+.rpt-cow-meta { font-size: 12px; color: var(--g45); }
+.rpt-cow-temp { font-size: 13px; color: var(--green); font-weight: 500; text-align: right; flex-shrink: 0; }
+
+/* ══ BOTTOM SHEET ══ */
+.sheet-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.3);
+  z-index: 300;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 260ms ease;
+}
+.sheet-overlay.visible { opacity: 1; pointer-events: all; }
+
+.report-sheet {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: var(--white);
+  border-radius: 16px 16px 0 0;
+  padding: 0 16px 40px;
+  z-index: 301;
+  transform: translateY(100%);
+  transition: transform 300ms ease;
+}
+.report-sheet.visible { transform: translateY(0); }
+
+.sheet-handle {
+  width: 36px; height: 4px;
+  background: var(--g15);
+  border-radius: 2px;
+  margin: 12px auto 20px;
+}
+
+.sheet-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--green);
+  margin-bottom: 20px;
+}
+
+.sheet-tabs {
+  display: flex;
+  border: 1px solid var(--g12);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.sheet-tab {
+  flex: 1;
+  height: 40px;
+  background: none;
+  border: none;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--g45);
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 150ms, color 150ms;
+}
+
+.sheet-tab.active {
+  background: var(--green);
+  color: var(--white);
+}
+
+.sheet-field-label {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--g45);
+  margin-bottom: 6px;
+}
+
+.sheet-input {
+  width: 100%;
+  height: 50px;
+  border: 1px solid var(--g12);
+  border-radius: 10px;
+  padding: 0 14px;
+  font-size: 15px;
+  color: var(--green);
+  background: var(--g08);
+  font-family: inherit;
+  outline: none;
+  margin-bottom: 16px;
+}
+.sheet-input:focus { border-color: var(--green); background: var(--white); }
+.sheet-input::placeholder { color: var(--g25); }
+
+.sheet-sent-msg {
+  font-size: 13px;
+  color: var(--g45);
+  text-align: center;
+  padding: 10px 0 4px;
+  display: none;
+}
+
+/* ══ MOBILE FULL SCREEN ══ */
+@media (max-width: 500px) {
+  body { background: #1C5C3A; padding: 0; min-height: 100dvh; justify-content: flex-start; align-items: stretch; }
+  .product-label, .controls { display: none; }
+  .phone-shell { width: 100%; height: 100dvh; border-radius: 0; border: none; position: fixed; top: 0; left: 0; }
+  .dynamic-island { display: none; }
+  .top-safe { height: env(safe-area-inset-top); min-height: 0; }
+  .tab-bar { height: calc(83px + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom); }
+  .home-indicator { display: none; }
+  .screen { width: 100%; height: 100dvh; }
+}
+</style>
+</head>
+<body>
+
+<div class="product-label">SmartCollar</div>
+
+<div class="phone-shell">
+  <div class="dynamic-island"></div>
+  <div class="screen-viewport">
+
+  <!-- ═══ DASHBOARD ═══ -->
+  <div class="screen active" id="screen-dashboard">
+    <div class="top-safe"></div>
+    <div class="nav-bar">
+      <div class="nav-spacer"></div>
+      <span class="nav-title">My Herd</span>
+      <button class="nav-btn" style="justify-content:flex-end" onclick="navigate('add')">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round">
+          <line x1="9" y1="2" x2="9" y2="16"/><line x1="2" y1="9" x2="16" y2="9"/>
+        </svg>
+      </button>
+    </div>
+    <div class="scroll-content">
+      <div class="stats-wrap">
+        <div class="stats-row">
+          <div class="stat-block"><div class="stat-num" id="stat-total">24</div><div class="stat-lbl">Total</div></div>
+          <div class="stat-block"><div class="stat-num" id="stat-active">23</div><div class="stat-lbl">Active</div></div>
+          <div class="stat-block"><div class="stat-num" id="stat-alerts">2</div><div class="stat-lbl al">Alerts</div></div>
+        </div>
+      </div>
+
+      <div id="alert-section-header" class="section-header">Active Alerts</div>
+      <div id="alert-list"></div>
+
+      <div class="section-header">All Collars</div>
+      <div class="search-wrap">
+        <input class="search-input" id="search-input" type="text" placeholder="Search collars..." oninput="filterCollars(this.value)">
+      </div>
+      <div id="collar-list"></div>
+      <div style="height:20px;"></div>
+    </div>
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="jumpHome()">
+        <svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10L12 3l9 7v10a1 1 0 01-1 1H4a1 1 0 01-1-1z"/><path d="M9 21V12h6v9"/></svg>
+        <span class="tab-label">Home</span>
+      </button>
+      <button class="tab-btn" onclick="navigate('add')">
+        <svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        <span class="tab-label">Add</span>
+      </button>
+      <button class="tab-btn" onclick="navigate('reports')">
+        <svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="7" y1="13" x2="7" y2="17"/><line x1="12" y1="9" x2="12" y2="17"/><line x1="17" y1="16" x2="17" y2="17"/></svg>
+        <span class="tab-label">Reports</span>
+      </button>
+      <button class="tab-btn" onclick="navigate('settings')">
+        <svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2.8"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        <span class="tab-label">Settings</span>
+      </button>
+    </div>
+    <div class="home-indicator"></div>
+  </div>
+
+  <!-- ═══ COW DETAIL ═══ -->
+  <div class="screen" id="screen-cow-detail">
+    <div class="top-safe"></div>
+    <div class="nav-bar">
+      <button class="nav-btn" onclick="goBack()">
+        <svg width="8" height="13" viewBox="0 0 8 13" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="7,1 1,6.5 7,12"/></svg>
+        <span>Herd</span>
+      </button>
+      <span class="nav-title">Bella</span>
+      <button class="nav-btn" style="justify-content:flex-end"><span>Edit</span></button>
+    </div>
+    <div class="scroll-content">
+      <div class="info-card">
+        <div class="info-header">
+          <div class="info-avatar">B</div>
+          <div>
+            <div class="info-name">Bella</div>
+            <div class="info-meta">CLR-0007 &middot; Holstein &middot; 4 yrs</div>
+          </div>
+        </div>
+        <div class="info-div"></div>
+        <div style="font-size:11px;color:var(--g25);margin-bottom:12px;">Last sync 2 min ago</div>
+        <div class="battery-row">
+          <span class="battery-lbl">Battery</span>
+          <div class="battery-track"><div class="battery-fill" style="width:87%"></div></div>
+          <span class="battery-pct">87%</span>
+        </div>
+      </div>
+      <div class="vitals-grid">
+        <div class="vital-card"><div class="vital-lbl">Temperature</div><div class="vital-val-row"><span class="vital-val">40.4</span><span class="vital-unit">°C</span></div><div class="vital-trend">+1.6 above baseline</div></div>
+        <div class="vital-card"><div class="vital-lbl">Heart Rate</div><div class="vital-val-row"><span class="vital-val">72</span><span class="vital-unit">bpm</span></div><div class="vital-trend">Normal range</div></div>
+        <div class="vital-card"><div class="vital-lbl">Activity</div><div class="vital-val-row"><span class="vital-val">18</span><span class="vital-unit">%</span></div><div class="vital-trend">60% below average</div></div>
+        <div class="vital-card"><div class="vital-lbl">Rumination</div><div class="vital-val-row"><span class="vital-val">3.1</span><span class="vital-unit">h</span></div><div class="vital-trend">Low — normal 7-8h</div></div>
+      </div>
+      <div class="chart-section">
+        <div class="chart-title">7-Day Temperature</div>
+        <div class="chart-wrap">
+          <svg width="100%" height="110" viewBox="0 0 330 110" id="temp-chart" overflow="visible"></svg>
+          <div class="chart-days"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Today</span></div>
+        </div>
+      </div>
+      <div class="section-header" style="padding-top:8px;">Event Log</div>
+      <div class="event-row"><span class="ev-time">Today 6:12 AM</span><span class="ev-desc">Fever alert triggered</span><div class="sep"></div></div>
+      <div class="event-row"><span class="ev-time">Today 4:40 AM</span><span class="ev-desc">Rumination drop detected</span><div class="sep"></div></div>
+      <div class="event-row"><span class="ev-time">Yesterday</span><span class="ev-desc">Vet check — all clear</span><div class="sep"></div></div>
+      <div class="event-row"><span class="ev-time">May 3</span><span class="ev-desc">Battery at 87%</span><div class="sep"></div></div>
+      <div class="event-row"><span class="ev-time">Apr 21</span><span class="ev-desc">AI baseline established</span></div>
+      <div style="height:32px;"></div>
+    </div>
+  </div>
+
+  <!-- ═══ ALERT DETAIL ═══ -->
+  <div class="screen" id="screen-alert-detail">
+    <div class="top-safe"></div>
+    <div class="nav-bar">
+      <button class="nav-btn" onclick="goBack()">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round">
+          <line x1="1" y1="1" x2="13" y2="13"/><line x1="13" y1="1" x2="1" y2="13"/>
+        </svg>
+      </button>
+      <span class="nav-title">Alert Detail</span>
+      <div class="nav-spacer"></div>
+    </div>
+    <div class="scroll-content">
+      <div class="ah-card">
+        <div class="ah-tag">Alert</div>
+        <div class="ah-title">Fever Detected</div>
+        <div class="ah-sub">Bella — CLR-0007</div>
+        <div class="ah-time">Today at 6:12 AM</div>
+        <span class="ah-pill">Check Immediately</span>
+      </div>
+      <div class="two-col">
+        <div class="data-card">
+          <div class="dc-title">Readings</div>
+          <div class="dc-row"><span class="dc-key">Temperature</span><span class="dc-val bold">40.4C</span></div>
+          <div class="dc-row"><span class="dc-key">Baseline</span><span class="dc-val">38.8C</span></div>
+          <div class="dc-row"><span class="dc-key">Deviation</span><span class="dc-val">+1.6C</span></div>
+          <div class="dc-row"><span class="dc-key">Species</span><span class="dc-val">38.5-39.5</span></div>
+          <div class="dc-row"><span class="dc-key">Heart rate</span><span class="dc-val">72 bpm</span></div>
+          <div class="dc-row"><span class="dc-key">Activity</span><span class="dc-val">18%</span></div>
+          <div class="dc-row"><span class="dc-key">Rumination</span><span class="dc-val">3.1h</span></div>
+        </div>
+        <div class="data-card">
+          <div class="dc-title">AI Analysis</div>
+          <div class="dc-row"><span class="dc-key">Detection</span><span class="dc-val">LSTM</span></div>
+          <div class="dc-row"><span class="dc-key">Trained on</span><span class="dc-val">14 days</span></div>
+          <div class="dc-row"><span class="dc-key">Signals</span><span class="dc-val">T + A + R</span></div>
+          <div class="dc-row"><span class="dc-key">Pattern</span><span class="dc-val">Early illness</span></div>
+          <div class="dc-row"><span class="dc-key">Causes</span><span class="dc-val">Mastitis, Resp.</span></div>
+          <div class="dc-row"><span class="dc-key">False alarm</span><span class="dc-val">8%</span></div>
+        </div>
+      </div>
+      <div class="wtd-section">
+        <div class="wtd-title">What To Do</div>
+        <div class="wtd-row"><div class="wtd-num">1</div><div class="wtd-text">Locate Bella and check for visible signs of distress</div></div>
+        <div class="wtd-row"><div class="wtd-num">2</div><div class="wtd-text">Take manual rectal temperature</div></div>
+        <div class="wtd-row"><div class="wtd-num">3</div><div class="wtd-text">Check feed and water intake</div></div>
+        <div class="wtd-row"><div class="wtd-num">4</div><div class="wtd-text">If confirmed above 39.5C, call vet</div></div>
+      </div>
+    </div>
+    <div class="alert-footer" id="alert-footer">
+      <button class="btn-primary" onclick="logResponse()">Confirmed — Real Issue</button>
+      <button class="btn-secondary" onclick="logResponse()">Dismiss — False Alarm</button>
+      <div class="resp-logged" id="resp-logged">Response logged. AI updated.</div>
+    </div>
+  </div>
+
+  <!-- ═══ ADD COLLAR ═══ -->
+  <div class="screen" id="screen-add">
+    <div class="top-safe"></div>
+    <div class="nav-bar">
+      <button class="nav-btn" onclick="stopCamera(); goBack();">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round">
+          <line x1="1" y1="1" x2="13" y2="13"/><line x1="13" y1="1" x2="1" y2="13"/>
+        </svg>
+      </button>
+      <span class="nav-title">Add Collar</span>
+      <div class="nav-spacer"></div>
+    </div>
+    <div class="scroll-content" id="add-scroll">
+      <div class="camera-card" id="camera-card">
+        <!-- Permission -->
+        <div class="cam-state cam-permission visible" id="cam-permission">
+          <div class="cam-icon">
+            <svg width="26" height="22" viewBox="0 0 26 22" fill="none" stroke="#1C5C3A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M24 17a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h3l2-4h8l2 4h3a2 2 0 012 2z"/>
+              <circle cx="13" cy="12" r="3.5"/>
+            </svg>
+          </div>
+          <div class="cam-perm-title">Scan Collar QR Code</div>
+          <div class="cam-perm-desc">SmartCollar uses your camera to read the QR code printed on the collar label.</div>
+          <button class="cam-allow-btn" onclick="requestCamera()">Allow Camera Access</button>
+        </div>
+        <!-- Loading -->
+        <div class="cam-state cam-loading" id="cam-loading">
+          <div class="cam-loading-text">Opening camera...</div>
+        </div>
+        <!-- Active -->
+        <div class="cam-state cam-active" id="cam-active">
+          <div class="cam-viewfinder">
+            <video id="camera-video" autoplay playsinline muted></video>
+            <canvas id="camera-canvas"></canvas>
+            <svg class="corner-svg" viewBox="0 0 100 100" fill="none" stroke="#1C5C3A" stroke-width="2.5" stroke-linecap="round" preserveAspectRatio="none">
+              <line x1="8" y1="22" x2="8" y2="8"/><line x1="8" y1="8" x2="22" y2="8"/>
+              <line x1="78" y1="8" x2="92" y2="8"/><line x1="92" y1="8" x2="92" y2="22"/>
+              <line x1="8" y1="78" x2="8" y2="92"/><line x1="8" y1="92" x2="22" y2="92"/>
+              <line x1="92" y1="78" x2="92" y2="92"/><line x1="78" y1="92" x2="92" y2="92"/>
+            </svg>
+            <div class="scan-line"></div>
+          </div>
+          <div class="cam-hint">Point at the QR code on the collar label</div>
+        </div>
+        <!-- Denied -->
+        <div class="cam-state cam-denied" id="cam-denied">
+          <svg width="40" height="36" viewBox="0 0 40 36" fill="none" stroke="rgba(28,92,58,0.4)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M37 28a2 2 0 01-2 2H5a2 2 0 01-2-2V12a2 2 0 012-2h4.5L12 6h16l2.5 4H35a2 2 0 012 2z"/>
+            <line x1="12" y1="1" x2="28" y2="35"/>
+          </svg>
+          <div class="cam-denied-title">Camera Unavailable</div>
+          <div class="cam-denied-desc">Enter the collar ID manually below to continue.</div>
+        </div>
+        <!-- Scanned -->
+        <div class="cam-state cam-scanned" id="cam-scanned">
+          <svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="#1C5C3A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="22" cy="22" r="20"/>
+            <polyline points="12,22 19,29 32,15"/>
+          </svg>
+          <div class="cam-scanned-id" id="cam-scanned-id">CLR-0025</div>
+          <div class="cam-scanned-sub">Collar ID detected</div>
+        </div>
+      </div>
+
+      <div class="or-divider" id="or-divider">
+        <div class="or-line"></div><span class="or-text">or enter manually</span><div class="or-line"></div>
+      </div>
+
+      <div class="form-fields" id="form-fields">
+        <div class="form-field">
+          <div class="field-label">Collar ID</div>
+          <input class="field-input" id="collar-id-input" type="text" placeholder="e.g. CLR-0025">
+        </div>
+        <div class="form-field">
+          <div class="field-label">Cow Name</div>
+          <input class="field-input" id="cow-name-input" type="text" placeholder="e.g. Daisy">
+        </div>
+        <div class="form-field">
+          <div class="field-label">Breed (optional)</div>
+          <input class="field-input" id="breed-input" type="text" placeholder="e.g. Holstein">
+        </div>
+      </div>
+
+      <div class="add-btn-wrap" id="activate-wrap">
+        <button class="btn-primary" onclick="activateCollar()">Activate Collar</button>
+      </div>
+
+      <div class="activate-success" id="activate-success">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="#1C5C3A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="24" cy="24" r="22"/><polyline points="13,24 21,32 35,16"/>
+        </svg>
+        <div class="succ-title">Collar Activated</div>
+        <div class="succ-sub" id="succ-sub">CLR-0025 is now monitoring Daisy</div>
+        <button class="succ-done" onclick="stopCamera(); goBack(); resetAdd();">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ REPORTS ═══ -->
+  <div class="screen" id="screen-reports">
+    <div class="top-safe"></div>
+    <div class="nav-bar"><div class="nav-spacer"></div><span class="nav-title">Reports</span><div class="nav-spacer"></div></div>
+    <div class="scroll-content">
+      <div class="section-header" style="padding-top:16px;">Herd Summary</div>
+      <div class="rpt-summary-card">
+        <div class="rpt-stat-row">
+          <div class="rpt-stat"><div class="rpt-stat-num" id="rpt-total">24</div><div class="rpt-stat-lbl">Total</div></div>
+          <div class="rpt-stat-div"></div>
+          <div class="rpt-stat"><div class="rpt-stat-num" id="rpt-active">23</div><div class="rpt-stat-lbl">Active</div></div>
+          <div class="rpt-stat-div"></div>
+          <div class="rpt-stat"><div class="rpt-stat-num" id="rpt-alerts">2</div><div class="rpt-stat-lbl">Alerts</div></div>
+        </div>
+      </div>
+
+      <div class="section-header">Active Alerts</div>
+      <div id="rpt-alert-list"></div>
+
+      <div class="section-header">All Collars</div>
+      <div id="rpt-collar-list"></div>
+
+      <div style="height:100px;"></div>
+    </div>
+    <div class="rpt-footer">
+      <button class="btn-primary" onclick="openSheet()">Send Report</button>
+    </div>
+    <div class="tab-bar">
+      <button class="tab-btn" onclick="navigate('dashboard')"><svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10L12 3l9 7v10a1 1 0 01-1 1H4a1 1 0 01-1-1z"/><path d="M9 21V12h6v9"/></svg><span class="tab-label">Home</span></button>
+      <button class="tab-btn" onclick="navigate('add')"><svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg><span class="tab-label">Add</span></button>
+      <button class="tab-btn active"><svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="7" y1="13" x2="7" y2="17"/><line x1="12" y1="9" x2="12" y2="17"/><line x1="17" y1="16" x2="17" y2="17"/></svg><span class="tab-label">Reports</span></button>
+      <button class="tab-btn" onclick="navigate('settings')"><svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2.8"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg><span class="tab-label">Settings</span></button>
+    </div>
+    <div class="home-indicator"></div>
+  </div>
+
+  <!-- ═══ SETTINGS ═══ -->
+  <div class="screen" id="screen-settings">
+    <div class="top-safe"></div>
+    <div class="nav-bar"><div class="nav-spacer"></div><span class="nav-title">Settings</span><div class="nav-spacer"></div></div>
+    <div class="scroll-content">
+      <div style="height:8px;"></div>
+      <div class="settings-row"><span class="settings-row-label">Gateway Status</span><svg width="8" height="13" viewBox="0 0 8 13" fill="none" stroke="rgba(28,92,58,0.3)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1,1 7,6.5 1,12"/></svg><div class="sep"></div></div>
+      <div class="settings-row"><span class="settings-row-label">Subscription</span><svg width="8" height="13" viewBox="0 0 8 13" fill="none" stroke="rgba(28,92,58,0.3)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1,1 7,6.5 1,12"/></svg><div class="sep"></div></div>
+      <div class="settings-row" onclick="navigate('how-it-works')"><span class="settings-row-label">How It Works</span><svg width="8" height="13" viewBox="0 0 8 13" fill="none" stroke="rgba(28,92,58,0.3)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1,1 7,6.5 1,12"/></svg><div class="sep"></div></div>
+      <div class="settings-row"><span class="settings-row-label">Account</span><svg width="8" height="13" viewBox="0 0 8 13" fill="none" stroke="rgba(28,92,58,0.3)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1,1 7,6.5 1,12"/></svg><div class="sep"></div></div>
+      <div class="settings-row"><span class="settings-row-label">Sign Out</span><svg width="8" height="13" viewBox="0 0 8 13" fill="none" stroke="rgba(28,92,58,0.3)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1,1 7,6.5 1,12"/></svg></div>
+    </div>
+    <div class="tab-bar">
+      <button class="tab-btn" onclick="navigate('dashboard')"><svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10L12 3l9 7v10a1 1 0 01-1 1H4a1 1 0 01-1-1z"/><path d="M9 21V12h6v9"/></svg><span class="tab-label">Home</span></button>
+      <button class="tab-btn" onclick="navigate('add')"><svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg><span class="tab-label">Add</span></button>
+      <button class="tab-btn" onclick="navigate('reports')"><svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="7" y1="13" x2="7" y2="17"/><line x1="12" y1="9" x2="12" y2="17"/><line x1="17" y1="16" x2="17" y2="17"/></svg><span class="tab-label">Reports</span></button>
+      <button class="tab-btn active"><svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2.8"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg><span class="tab-label">Settings</span></button>
+    </div>
+    <div class="home-indicator"></div>
+  </div>
+
+  <!-- ═══ HOW IT WORKS ═══ -->
+  <div class="screen" id="screen-how-it-works">
+    <div class="top-safe"></div>
+    <div class="nav-bar">
+      <button class="nav-btn" onclick="goBack()">
+        <svg width="8" height="13" viewBox="0 0 8 13" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="7,1 1,6.5 7,12"/></svg>
+        <span>Settings</span>
+      </button>
+      <span class="nav-title">How It Works</span>
+      <div class="nav-spacer"></div>
+    </div>
+    <div class="scroll-content">
+      <div style="height:4px;"></div>
+      <div class="step-row"><div class="step-circle">1</div><div><div class="step-title">Collar reads sensors every 30 seconds</div><div class="step-desc">Temperature, heart rate, and movement captured continuously on-device</div></div><div class="sep"></div></div>
+      <div class="step-row"><div class="step-circle">2</div><div><div class="step-title">LoRa radio sends data every 10-15 minutes</div><div class="step-desc">Low-power radio transmits to the farm gateway up to 5km away</div></div><div class="sep"></div></div>
+      <div class="step-row"><div class="step-circle">3</div><div><div class="step-title">Farm gateway collects all collar data</div><div class="step-desc">One gateway per farm handles the full herd and pushes to cloud</div></div><div class="sep"></div></div>
+      <div class="step-row"><div class="step-circle">4</div><div><div class="step-title">Cloud cleans and stores time-series data</div><div class="step-desc">Data is validated, timestamped, and stored per animal</div></div><div class="sep"></div></div>
+      <div class="step-row"><div class="step-circle">5</div><div><div class="step-title">AI model checks each cow against her baseline</div><div class="step-desc">Three-layer system compares readings to each animal's personal norm</div></div><div class="sep"></div></div>
+      <div class="step-row"><div class="step-circle">6</div><div><div class="step-title">Push notification sent to your phone</div><div class="step-desc">Alert delivered within minutes of anomaly detection</div></div></div>
+      <div class="section-header">AI Layers</div>
+      <div class="ai-cards">
+        <div class="ai-card"><div class="ai-num">1</div><div><div class="ai-title-row"><span class="ai-name">Rule-Based Alerts</span><span class="timing-pill">Day 1</span></div><div class="ai-desc">Works immediately, no data needed. Fixed thresholds trigger the moment a reading crosses a limit.</div></div></div>
+        <div class="ai-card"><div class="ai-num">2</div><div><div class="ai-title-row"><span class="ai-name">LSTM Autoencoder</span><span class="timing-pill">2-3 weeks</span></div><div class="ai-desc">Learns each cow personally. Flags deviations from her own norm, not species averages.</div></div></div>
+        <div class="ai-card"><div class="ai-num">3</div><div><div class="ai-title-row"><span class="ai-name">Chronos Fine-Tuned</span><span class="timing-pill">6 months</span></div><div class="ai-desc">Predicts events 24-48h before they are visible using cattle-trained time-series AI.</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  </div><!-- /screen-viewport -->
+
+  <!-- ═══ BOTTOM SHEET: SEND REPORT ═══ -->
+  <div class="sheet-overlay" id="sheet-overlay" onclick="closeSheet()"></div>
+  <div class="report-sheet" id="report-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Send Report</div>
+    <div class="sheet-tabs">
+      <button class="sheet-tab active" id="tab-email" onclick="switchTab('email')">Email</button>
+      <button class="sheet-tab" id="tab-phone" onclick="switchTab('phone')">Phone</button>
+    </div>
+    <div class="sheet-field-label" id="sheet-field-lbl">Email address</div>
+    <input class="sheet-input" id="sheet-input" type="email" placeholder="you@example.com">
+    <button class="btn-primary" onclick="sendReport()">Send Report</button>
+    <button class="btn-secondary" style="margin-top:8px;" onclick="closeSheet()">Cancel</button>
+    <div class="sheet-sent-msg" id="sheet-sent-msg">Report sent. Check your inbox.</div>
+  </div>
+
+</div><!-- /phone-shell -->
+
+<div class="controls">
+  <button onclick="triggerAlert()">Trigger Alert</button>
+  <span class="controls-sep">|</span>
+  <button onclick="resetApp()">Reset</button>
+  <span class="controls-sep">|</span>
+  <button onclick="jumpHome()">Dashboard</button>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────
+const INITIAL_COLLARS = [
+  { id:'CLR-0007', name:'Bella',  breed:'Holstein',  temp:'40.4°C', hr:'72 bpm', alert:true,  alertType:'Fever Alert',      alertTime:'2h ago' },
+  { id:'CLR-0014', name:'Rosie',  breed:'Jersey',    temp:'38.9°C', hr:'68 bpm', alert:true,  alertType:'Rumination Drop',  alertTime:'5h ago' },
+  { id:'CLR-0002', name:'Nora',   breed:'Angus',     temp:'38.6°C', hr:'65 bpm', alert:false, alertType:'', alertTime:'' },
+  { id:'CLR-0009', name:'Clover', breed:'Holstein',  temp:'38.8°C', hr:'70 bpm', alert:false, alertType:'', alertTime:'' },
+  { id:'CLR-0011', name:'Maple',  breed:'Hereford',  temp:'38.7°C', hr:'67 bpm', alert:false, alertType:'', alertTime:'' },
+  { id:'CLR-0016', name:'Pearl',  breed:'Simmental', temp:'39.0°C', hr:'69 bpm', alert:false, alertType:'', alertTime:'' },
+  { id:'CLR-0019', name:'Sage',   breed:'Angus',     temp:'38.5°C', hr:'64 bpm', alert:false, alertType:'', alertTime:'' },
+  { id:'CLR-0023', name:'June',   breed:'Jersey',    temp:'38.9°C', hr:'71 bpm', alert:false, alertType:'', alertTime:'' },
+];
+let COLLARS = [...INITIAL_COLLARS];
+
+// ── NAVIGATION ────────────────────────────────────────
+let stack = ['dashboard'];
+
+function sid(n) { return 'screen-' + n; }
+
+function navigate(target) {
+  const cur = stack[stack.length - 1];
+  if (cur === target) return;
+  stack.push(target);
+
+  const curEl = document.getElementById(sid(cur));
+  const tgtEl = document.getElementById(sid(target));
+  if (!tgtEl) return;
+
+  curEl.style.transition = 'transform 280ms ease';
+  curEl.style.transform  = 'translateX(-28%)';
+  tgtEl.style.transition = 'none';
+  tgtEl.style.transform  = 'translateX(100%)';
+  tgtEl.classList.add('active');
+
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    tgtEl.style.transition = 'transform 280ms ease';
+    tgtEl.style.transform  = 'translateX(0)';
+  }));
+
+  setTimeout(() => {
+    curEl.style.transform = curEl.style.transition = '';
+  }, 290);
+
+  if (target === 'add') initAdd();
+}
+
+function goBack() {
+  if (stack.length <= 1) return;
+  const cur  = stack.pop();
+  const prev = stack[stack.length - 1];
+  const curEl  = document.getElementById(sid(cur));
+  const prevEl = document.getElementById(sid(prev));
+
+  prevEl.style.transition = 'none';
+  prevEl.style.transform  = 'translateX(-28%)';
+  prevEl.classList.add('active');
+
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    prevEl.style.transition = 'transform 280ms ease';
+    prevEl.style.transform  = 'translateX(0)';
+    curEl.style.transition  = 'transform 280ms ease';
+    curEl.style.transform   = 'translateX(100%)';
+  }));
+
+  setTimeout(() => {
+    curEl.classList.remove('active');
+    curEl.style.transform = curEl.style.transition = '';
+    prevEl.style.transform = prevEl.style.transition = '';
+  }, 290);
+}
+
+function jumpHome() {
+  document.querySelectorAll('.screen').forEach(s => {
+    s.classList.remove('active');
+    s.style.transform = s.style.transition = '';
+  });
+  document.getElementById('screen-dashboard').classList.add('active');
+  stack = ['dashboard'];
+}
+
+// ── HELPERS ───────────────────────────────────────────
+const CHEV = `<svg class="chev" width="8" height="13" viewBox="0 0 8 13" fill="none" stroke="rgba(28,92,58,0.3)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1,1 7,6.5 1,12"/></svg>`;
+
+function collarNum(id) {
+  const m = id.match(/(\d+)$/);
+  if (!m) return '??';
+  const n = parseInt(m[1]);
+  return n < 10 ? '0' + n : String(n);
+}
+
+// ── ALERT LIST (dashboard) ────────────────────────────
+function renderAlerts() {
+  const alerts = COLLARS.filter(c => c.alert);
+  const header = document.getElementById('alert-section-header');
+  const list   = document.getElementById('alert-list');
+  if (!list) return;
+
+  if (alerts.length === 0) {
+    header.style.display = 'none';
+    list.innerHTML = '';
+    return;
+  }
+
+  header.style.display = '';
+  list.innerHTML = alerts.map((c, i) => `
+    <div class="alert-row" onclick="navigate('alert-detail')" style="${i === alerts.length-1 ? 'margin-bottom:8px;' : ''}">
+      <div class="alert-dot"></div>
+      <div class="alert-info">
+        <div class="alert-name">${c.id}</div>
+        <div class="alert-meta">${c.breed} &middot; ${c.alertType}</div>
+      </div>
+      <span class="alert-time">${c.alertTime}</span>
+      ${CHEV}
+      ${i < alerts.length - 1 ? '<div class="sep"></div>' : ''}
+    </div>`).join('');
+}
+
+// ── COLLAR LIST ───────────────────────────────────────
+function renderCollars(list) {
+  const el = document.getElementById('collar-list');
+  if (!el) return;
+  el.innerHTML = list.map((c, i) => `
+    <div class="collar-row" onclick="navigate('cow-detail')">
+      <div class="cow-avatar" style="font-size:13px;">${collarNum(c.id)}</div>
+      <div class="collar-info">
+        <div class="collar-name">${c.id}${c.alert ? ' <span class="alert-badge">Alert</span>' : ''}</div>
+        <div class="collar-meta">${c.breed}</div>
+      </div>
+      <div class="collar-vitals">
+        ${c.temp === '--'
+          ? `<div class="vr" style="font-size:11px;color:var(--g25);font-weight:400;">Pending</div>`
+          : `<div class="vr">${c.temp}</div><div class="vr">${c.hr}</div>`}
+      </div>
+      ${CHEV}
+      ${i < list.length - 1 ? '<div class="sep"></div>' : ''}
+    </div>`).join('');
+}
+
+function filterCollars(q) {
+  const f = q ? COLLARS.filter(c =>
+    [c.name, c.id, c.breed].some(v => v.toLowerCase().includes(q.toLowerCase()))
+  ) : COLLARS;
+  renderCollars(f);
+}
+
+// ── CHART ─────────────────────────────────────────────
+function renderChart() {
+  const svg = document.getElementById('temp-chart');
+  if (!svg) return;
+  const temps = [38.8, 38.9, 39.1, 39.4, 39.9, 40.1, 40.4];
+  const W = 330, H = 110, pL = 4, pR = 4, pT = 22, pB = 4;
+  const minT = 38.4, maxT = 40.9;
+  const x = i => pL + (i / 6) * (W - pL - pR);
+  const y = t => pT + (1 - (t - minT) / (maxT - minT)) * (H - pT - pB);
+  const by = y(38.8);
+  const pts = temps.map((t, i) => `${x(i)},${y(t)}`).join(' ');
+  svg.innerHTML =
+    `<line x1="${pL}" y1="${by}" x2="${W-pR}" y2="${by}" stroke="rgba(28,92,58,0.2)" stroke-width="1" stroke-dasharray="4,4"/>
+     <text x="${pL}" y="${by-5}" font-size="10" fill="rgba(28,92,58,0.4)" font-family="-apple-system,sans-serif">Baseline 38.8</text>
+     <polyline points="${pts}" fill="none" stroke="#1C5C3A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>` +
+    temps.map((t, i) => {
+      const cx = x(i), cy = y(t), r = i === 6 ? 5 : 3.5;
+      return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#1C5C3A"/>` +
+        (i === 6 ? `<text x="${cx}" y="${cy-9}" font-size="10" font-weight="700" fill="#1C5C3A" font-family="-apple-system,sans-serif" text-anchor="middle">40.4</text>` : '');
+    }).join('');
+}
+
+// ── ALERT DETAIL ──────────────────────────────────────
+function logResponse() {
+  document.getElementById('alert-footer').querySelectorAll('button').forEach(b => b.style.display = 'none');
+  document.getElementById('resp-logged').style.display = 'block';
+}
+
+// ── CAMERA ────────────────────────────────────────────
+let cameraStream = null;
+let scanActive   = false;
+let demoTimer    = null;
+let detector     = null;
+
+function showCam(id) {
+  ['cam-permission','cam-loading','cam-active','cam-denied','cam-scanned'].forEach(s => {
+    document.getElementById(s).classList.toggle('visible', s === id);
+  });
+}
+
+async function loadJsQR() {
+  if (window.jsQR) return true;
+  return new Promise(res => {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js';
+    s.onload = () => res(true);
+    s.onerror = () => res(false);
+    document.head.appendChild(s);
+  });
+}
+
+async function requestCamera() {
+  showCam('cam-loading');
+  try {
+    if ('BarcodeDetector' in window) {
+      detector = new BarcodeDetector({ formats: ['qr_code'] });
+    } else {
+      await loadJsQR();
+    }
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment', width: { ideal: 1280 } }
+    });
+    cameraStream = stream;
+    const v = document.getElementById('camera-video');
+    v.srcObject = stream;
+    await v.play();
+    showCam('cam-active');
+    scanActive = true;
+    requestAnimationFrame(scanFrame);
+    // Demo fallback: simulate a scan after 5s if no real QR found
+    demoTimer = setTimeout(() => { if (scanActive) handleScan('CLR-0025'); }, 5000);
+  } catch (e) {
+    showCam('cam-denied');
+  }
+}
+
+function scanFrame() {
+  if (!scanActive) return;
+  const v = document.getElementById('camera-video');
+  if (!v || v.readyState < 2) { requestAnimationFrame(scanFrame); return; }
+
+  if (detector) {
+    detector.detect(v)
+      .then(codes => {
+        if (!scanActive) return;
+        codes.length ? handleScan(codes[0].rawValue) : requestAnimationFrame(scanFrame);
+      })
+      .catch(() => { if (scanActive) requestAnimationFrame(scanFrame); });
+  } else if (window.jsQR) {
+    const c = document.getElementById('camera-canvas');
+    const ctx = c.getContext('2d');
+    c.width = v.videoWidth; c.height = v.videoHeight;
+    ctx.drawImage(v, 0, 0);
+    const img  = ctx.getImageData(0, 0, c.width, c.height);
+    const code = jsQR(img.data, img.width, img.height);
+    if (code && scanActive) { handleScan(code.data); return; }
+    if (scanActive) requestAnimationFrame(scanFrame);
+  } else {
+    if (scanActive) requestAnimationFrame(scanFrame);
+  }
+}
+
+function handleScan(raw) {
+  stopCamera();
+  const m = raw && raw.match(/CLR-\d+/i);
+  const id = m ? m[0].toUpperCase() : (raw || 'CLR-0025').substring(0, 10);
+  document.getElementById('collar-id-input').value = id;
+  document.getElementById('cam-scanned-id').textContent = id;
+  showCam('cam-scanned');
+}
+
+function stopCamera() {
+  scanActive = false;
+  clearTimeout(demoTimer);
+  if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
+  detector = null;
+}
+
+// ── ADD COLLAR ────────────────────────────────────────
+function initAdd() {
+  resetAdd();
+}
+
+function resetAdd() {
+  stopCamera();
+  showCam('cam-permission');
+  document.getElementById('collar-id-input').value = '';
+  document.getElementById('cow-name-input').value  = '';
+  document.getElementById('or-divider').style.display    = '';
+  document.getElementById('form-fields').style.display   = '';
+  document.getElementById('activate-wrap').style.display = '';
+  document.getElementById('activate-success').style.display = 'none';
+  document.getElementById('camera-card').style.display   = '';
+  document.getElementById('add-scroll').scrollTop = 0;
+}
+
+function activateCollar() {
+  const id    = document.getElementById('collar-id-input').value.trim() || 'CLR-0025';
+  const name  = document.getElementById('cow-name-input').value.trim()  || 'Daisy';
+  const breed = document.getElementById('breed-input').value.trim()     || 'Unknown';
+
+  // Only add if not already in list
+  if (!COLLARS.find(c => c.id === id)) {
+    COLLARS.push({ id, name, breed, temp: '--', hr: '-- bpm', alert: false, alertType: '', alertTime: '' });
+    renderCollars(COLLARS);
+    renderAlerts();
+    updateStats();
+    renderReports();
+  }
+
+  document.getElementById('succ-sub').textContent = `${id} is now monitoring ${name}`;
+  document.getElementById('camera-card').style.display   = 'none';
+  document.getElementById('or-divider').style.display    = 'none';
+  document.getElementById('form-fields').style.display   = 'none';
+  document.getElementById('activate-wrap').style.display = 'none';
+  document.getElementById('activate-success').style.display = 'flex';
+}
+
+// ── STATS ─────────────────────────────────────────────
+function updateStats() {
+  const total  = COLLARS.length;
+  const alerts = COLLARS.filter(c => c.alert).length;
+  const active = total; // all collars with a sync are active
+  ['total','active','alerts'].forEach((k, i) => {
+    const v = [total, active, alerts][i];
+    document.getElementById('stat-' + k).textContent = v;
+    const rEl = document.getElementById('rpt-' + k);
+    if (rEl) rEl.textContent = v;
+  });
+}
+
+// ── REPORTS RENDER ────────────────────────────────────
+function renderReports() {
+  // Alert list
+  const alertEl = document.getElementById('rpt-alert-list');
+  if (alertEl) {
+    const alerts = COLLARS.filter(c => c.alert);
+    alertEl.innerHTML = alerts.length
+      ? alerts.map((c, i) => `
+          <div class="rpt-collar-row">
+            <div class="rpt-cow-dot"></div>
+            <div style="flex:1;">
+              <div class="rpt-cow-name">${c.id}</div>
+              <div class="rpt-cow-meta">${c.breed} &middot; ${c.alertType}</div>
+            </div>
+            <div class="rpt-cow-temp">${c.temp}</div>
+            ${i < alerts.length - 1 ? '<div class="sep"></div>' : ''}
+          </div>`).join('')
+      : '<div style="padding:12px 16px;font-size:13px;color:var(--g45);">No active alerts</div>';
+  }
+
+  // Full collar list
+  const listEl = document.getElementById('rpt-collar-list');
+  if (listEl) {
+    listEl.innerHTML = COLLARS.map((c, i) => `
+      <div class="rpt-collar-row">
+        <div class="rpt-cow-dot" style="${c.alert ? '' : 'opacity:0.35'}"></div>
+        <div style="flex:1;">
+          <div class="rpt-cow-name">${c.id}${c.alert ? ' <span class="alert-badge">Alert</span>' : ''}</div>
+          <div class="rpt-cow-meta">${c.breed}</div>
+        </div>
+        <div class="rpt-cow-temp">${c.temp === '--' ? '—' : c.temp}</div>
+        ${i < COLLARS.length - 1 ? '<div class="sep"></div>' : ''}
+      </div>`).join('');
+  }
+}
+
+// ── REPORT SHEET ──────────────────────────────────────
+let sheetTab = 'email';
+
+function openSheet() {
+  document.getElementById('sheet-overlay').classList.add('visible');
+  document.getElementById('report-sheet').classList.add('visible');
+  document.getElementById('sheet-sent-msg').style.display = 'none';
+  document.getElementById('sheet-input').value = '';
+  document.querySelector('.report-sheet .btn-primary').style.display = '';
+  document.querySelector('.report-sheet .btn-secondary').style.display = '';
+}
+
+function closeSheet() {
+  document.getElementById('sheet-overlay').classList.remove('visible');
+  document.getElementById('report-sheet').classList.remove('visible');
+}
+
+function switchTab(tab) {
+  sheetTab = tab;
+  document.getElementById('tab-email').classList.toggle('active', tab === 'email');
+  document.getElementById('tab-phone').classList.toggle('active', tab === 'phone');
+  const input = document.getElementById('sheet-input');
+  const lbl   = document.getElementById('sheet-field-lbl');
+  if (tab === 'email') {
+    input.type = 'email'; input.placeholder = 'you@example.com'; lbl.textContent = 'Email address';
+  } else {
+    input.type = 'tel'; input.placeholder = '+1 555 000 0000'; lbl.textContent = 'Phone number';
+  }
+  input.value = '';
+}
+
+function buildReportText() {
+  const now     = new Date().toLocaleString();
+  const alerts  = COLLARS.filter(c => c.alert);
+  const healthy = COLLARS.filter(c => !c.alert);
+  let body = `SmartCollar Herd Report\nGenerated: ${now}\n\n`;
+  body += `SUMMARY\nTotal collars: ${COLLARS.length} | Active: ${COLLARS.length} | Alerts: ${alerts.length}\n\n`;
+  if (alerts.length) {
+    body += `ACTIVE ALERTS\n`;
+    alerts.forEach(c => { body += `- ${c.name} (${c.id}): ${c.temp} — check immediately\n`; });
+    body += '\n';
+  }
+  body += `ALL COLLARS\n`;
+  COLLARS.forEach(c => {
+    body += `- ${c.name} (${c.id}) ${c.breed}: ${c.temp} / ${c.hr}${c.alert ? ' ALERT' : ''}\n`;
+  });
+  body += `\nSent via SmartCollar`;
+  return body;
+}
+
+function sendReport() {
+  const dest = document.getElementById('sheet-input').value.trim();
+  if (!dest) { document.getElementById('sheet-input').focus(); return; }
+
+  const report = buildReportText();
+
+  if (sheetTab === 'email') {
+    const subject = encodeURIComponent('SmartCollar Herd Report');
+    const body    = encodeURIComponent(report);
+    window.open(`mailto:${encodeURIComponent(dest)}?subject=${subject}&body=${body}`, '_blank');
+  } else {
+    const body = encodeURIComponent(report.substring(0, 1600)); // SMS length limit
+    window.open(`sms:${dest}?body=${body}`, '_blank');
+  }
+
+  // Show sent confirmation
+  document.querySelector('.report-sheet .btn-primary').style.display  = 'none';
+  document.querySelector('.report-sheet .btn-secondary').style.display = 'none';
+  const msg = document.getElementById('sheet-sent-msg');
+  msg.textContent = sheetTab === 'email'
+    ? 'Opening your email app with the report...'
+    : 'Opening SMS with the report...';
+  msg.style.display = 'block';
+  setTimeout(closeSheet, 2200);
+}
+
+// ── RESET ─────────────────────────────────────────────
+function resetApp() {
+  stopCamera();
+  closeSheet();
+
+  // Restore original data
+  COLLARS = [...INITIAL_COLLARS];
+
+  document.querySelectorAll('.screen').forEach(s => {
+    s.classList.remove('active');
+    s.style.transform = s.style.transition = '';
+  });
+  stack = ['dashboard'];
+  document.getElementById('screen-dashboard').classList.add('active');
+  document.getElementById('alert-footer').querySelectorAll('button').forEach(b => b.style.display = '');
+  document.getElementById('resp-logged').style.display = 'none';
+  document.getElementById('search-input').value = '';
+  resetAdd();
+  renderCollars(COLLARS);
+  renderAlerts();
+  updateStats();
+  renderReports();
+  document.querySelectorAll('.scroll-content').forEach(s => s.scrollTop = 0);
+}
+
+// ── RESET ADD (clear all fields) ──────────────────────
+const _origResetAdd = resetAdd;
+// Patch breed field clear into resetAdd
+function resetAdd() {
+  stopCamera();
+  showCam('cam-permission');
+  document.getElementById('collar-id-input').value = '';
+  document.getElementById('cow-name-input').value  = '';
+  const breedEl = document.getElementById('breed-input');
+  if (breedEl) breedEl.value = '';
+  document.getElementById('or-divider').style.display    = '';
+  document.getElementById('form-fields').style.display   = '';
+  document.getElementById('activate-wrap').style.display = '';
+  document.getElementById('activate-success').style.display = 'none';
+  document.getElementById('camera-card').style.display   = '';
+  document.getElementById('add-scroll').scrollTop = 0;
+}
+
+// ── TRIGGER ALERT (demo control) ──────────────────────
+function triggerAlert() {
+  // Pick the first non-alerting cow and put it into an alert state for demo
+  const target = COLLARS.find(c => !c.alert);
+  if (target) {
+    target.alert     = true;
+    target.alertType = 'Fever Alert';
+    target.alertTime = 'Just now';
+    target.temp      = '40.1°C';
+    renderCollars(COLLARS);
+    renderAlerts();
+    updateStats();
+    renderReports();
+  }
+  navigate('alert-detail');
+}
+
+// ── INIT ──────────────────────────────────────────────
+renderCollars(COLLARS);
+renderAlerts();
+renderChart();
+renderReports();
+updateStats();
+</script>
+</body>
+</html>
