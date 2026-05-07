@@ -1,0 +1,1594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>GrazeTech — Deck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --white: #FFFFFF;
+    --offwhite: #FAFAF7;
+    --line: #E8E5DC;
+    --line-soft: #F0EDE5;
+    --forest: #143D2B;
+    --forest-deep: #0E2A1E;
+    --moss: #2D6A4F;
+    --moss-soft: #5A8B6E;
+    --mint: #52B788;
+    --mint-pale: #D4EDD9;
+    --gold: #E9C46A;
+    --gold-pale: #FAEDC4;
+    --amber: #F4A261;
+    --amber-pale: #FCE0C7;
+    --coral: #E76F51;
+    --coral-pale: #FBDDD2;
+
+    --sans: 'Inter Tight', -apple-system, sans-serif;
+    --mono: 'IBM Plex Mono', ui-monospace, monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: #1c1814;
+    font-family: var(--sans);
+    color: var(--forest);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    background: radial-gradient(ellipse at top, #2c2520 0%, #14110d 70%);
+    padding: 40px 20px 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  /* MACBOOK */
+  .macbook { width: 100%; max-width: 1400px; }
+  .macbook-screen {
+    background: #1a1a1a;
+    border-radius: 18px 18px 4px 4px;
+    padding: 14px 14px 20px;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.5), 0 10px 30px rgba(0,0,0,0.3), inset 0 0 0 1px #2a2a2a;
+    position: relative;
+  }
+  .macbook-screen::before {
+    content:''; position:absolute; top:0; left:50%; transform:translateX(-50%);
+    width:140px; height:18px; background:#1a1a1a; border-radius:0 0 12px 12px; z-index:2;
+  }
+  .macbook-screen::after {
+    content:''; position:absolute; top:6px; left:50%; transform:translateX(-50%);
+    width:6px; height:6px; background:#2a2a2a; border-radius:50%; z-index:3;
+  }
+  .macbook-display {
+    background: var(--white);
+    border-radius: 6px;
+    overflow: hidden;
+    aspect-ratio: 16/10.3;
+    position: relative;
+  }
+  .macbook-base {
+    height: 18px;
+    background: linear-gradient(180deg, #3a3a3a 0%, #1a1a1a 100%);
+    border-radius: 0 0 22px 22px;
+    margin: -2px auto 0;
+    width: 102%;
+    margin-left: -1%;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+    position: relative;
+  }
+  .macbook-base::after {
+    content:''; position:absolute; top:0; left:50%; transform:translateX(-50%);
+    width:14%; height:6px; background:linear-gradient(180deg,#0a0a0a,#1a1a1a); border-radius:0 0 8px 8px;
+  }
+
+  /* PAGES */
+  .page {
+    width: 100%;
+    height: 100%;
+    background: var(--white);
+    color: var(--forest);
+    font-size: 12px;
+    line-height: 1.45;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .page.active { display: flex; }
+
+  /* TOP BAR (shared across pages 2-6) */
+  .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--line);
+    background: var(--white);
+    flex-shrink: 0;
+  }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand-text h1 {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--forest);
+    line-height: 1;
+  }
+  .brand-text .tag {
+    font-family: var(--mono);
+    font-size: 8px;
+    color: var(--moss);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-top: 4px;
+    font-weight: 500;
+  }
+  .top-meta {
+    display: flex; align-items: center; gap: 18px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--moss);
+    font-weight: 500;
+  }
+  .pulse-dot {
+    display: inline-block; width: 7px; height: 7px;
+    background: var(--mint); border-radius: 50%; margin-right: 6px;
+    animation: pulseDot 2s infinite;
+  }
+  @keyframes pulseDot {
+    0% { box-shadow: 0 0 0 0 rgba(82, 183, 136, 0.6); }
+    70% { box-shadow: 0 0 0 8px rgba(82, 183, 136, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(82, 183, 136, 0); }
+  }
+  .operator-pill {
+    background: var(--offwhite);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 11px;
+    color: var(--forest);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .operator-pill .avatar {
+    width: 18px; height: 18px;
+    background: var(--forest); color: var(--white);
+    border-radius: 50%; display: flex;
+    align-items: center; justify-content: center;
+    font-size: 9px; font-weight: 700;
+  }
+
+  .page-content {
+    flex: 1;
+    padding: 22px 28px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .page-header {
+    margin-bottom: 16px;
+  }
+  .page-eyebrow {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--moss);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .page-title {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--forest);
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+  .page-sub {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--moss);
+    margin-top: 8px;
+    letter-spacing: 0.05em;
+    font-weight: 500;
+  }
+
+  .panel {
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 18px;
+  }
+
+  .panel-title {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--moss);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+  }
+
+  .badge {
+    font-family: var(--mono);
+    font-size: 8px;
+    padding: 3px 7px;
+    border-radius: 3px;
+    background: var(--mint-pale);
+    color: var(--moss);
+    letter-spacing: 0.08em;
+    font-weight: 600;
+  }
+  .badge.alert { background: var(--coral-pale); color: var(--coral); }
+  .badge.warn { background: var(--amber-pale); color: #B57420; }
+  .badge.gold { background: var(--gold); color: var(--forest-deep); }
+
+  /* ============ PAGE 1: COVER ============ */
+  .cover-page {
+    background:
+      radial-gradient(circle at 20% 80%, rgba(82, 183, 136, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(233, 196, 106, 0.08) 0%, transparent 50%),
+      var(--white);
+    align-items: stretch;
+    justify-content: center;
+    padding: 60px;
+    position: relative;
+  }
+
+  .cover-mark {
+    position: absolute;
+    top: 40px;
+    left: 60px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .cover-mark h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--forest);
+    letter-spacing: -0.02em;
+  }
+
+  .cover-meta-top {
+    position: absolute;
+    top: 50px;
+    right: 60px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--moss);
+    text-align: right;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  .cover-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: 900px;
+  }
+
+  .cover-eyebrow {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--moss);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+  .cover-title {
+    font-size: 110px;
+    font-weight: 700;
+    color: var(--forest);
+    line-height: 0.9;
+    letter-spacing: -0.045em;
+    margin-bottom: 24px;
+  }
+  .cover-tagline {
+    font-size: 24px;
+    color: var(--moss);
+    line-height: 1.3;
+    font-weight: 500;
+    max-width: 640px;
+    margin-bottom: 40px;
+    letter-spacing: -0.01em;
+  }
+
+  .cover-stats {
+    display: flex;
+    gap: 40px;
+    padding-top: 30px;
+    border-top: 1px solid var(--line);
+    max-width: 700px;
+  }
+  .cover-stat .v {
+    font-size: 38px;
+    font-weight: 700;
+    color: var(--forest);
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+  .cover-stat .l {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--moss);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 500;
+    margin-top: 8px;
+  }
+
+  .cover-bottom {
+    position: absolute;
+    bottom: 40px;
+    left: 60px;
+    right: 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+  .cover-author {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--forest);
+    letter-spacing: 0.05em;
+    font-weight: 500;
+  }
+  .cover-author .label {
+    font-size: 9px;
+    color: var(--moss);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    display: block;
+    font-weight: 600;
+  }
+  .cover-page-num {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--moss);
+    letter-spacing: 0.1em;
+    font-weight: 500;
+  }
+
+  /* ============ PAGE 2: PREDICTIONS ============ */
+  .notification-hero {
+    background: linear-gradient(135deg, var(--forest) 0%, var(--forest-deep) 100%);
+    color: var(--white);
+    border-radius: 14px;
+    padding: 24px 28px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+  .notification-hero::before {
+    content: '';
+    position: absolute;
+    top: -40%; right: -15%;
+    width: 380px; height: 380px;
+    background: radial-gradient(circle, rgba(233, 196, 106, 0.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .nh-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 22px;
+    position: relative;
+  }
+  .nh-title-block { display: flex; align-items: center; gap: 16px; }
+  .alert-icon {
+    width: 50px; height: 50px;
+    background: var(--gold);
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; color: var(--forest-deep); font-weight: 800;
+  }
+  .nh-title {
+    font-size: 30px; font-weight: 700;
+    color: var(--white); line-height: 1; letter-spacing: -0.02em;
+  }
+  .nh-subtitle {
+    font-family: var(--mono); font-size: 11px;
+    color: var(--mint-pale); letter-spacing: 0.1em;
+    text-transform: uppercase; margin-top: 6px; font-weight: 500;
+  }
+  .nh-summary { display: flex; gap: 30px; }
+  .nh-summary .summ { display: flex; flex-direction: column; align-items: flex-end; }
+  .nh-summary .summ .n {
+    font-size: 38px; line-height: 1; color: var(--white);
+    font-weight: 700; letter-spacing: -0.02em;
+  }
+  .nh-summary .summ .l {
+    font-family: var(--mono); font-size: 9px;
+    color: var(--mint-pale); letter-spacing: 0.1em;
+    text-transform: uppercase; margin-top: 5px; font-weight: 500;
+  }
+  .nh-summary .summ.gold .n { color: var(--gold); }
+  .nh-summary .summ.coral .n { color: var(--coral); }
+
+  .prediction-cards {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    flex: 1;
+    position: relative;
+  }
+  .pc {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(233, 196, 106, 0.25);
+    border-radius: 10px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+  }
+  .pc.critical {
+    background: rgba(231, 111, 81, 0.12);
+    border-color: var(--coral);
+  }
+  .pc-head {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 14px;
+  }
+  .pc-name {
+    font-size: 22px; font-weight: 700; color: var(--white);
+    line-height: 1; letter-spacing: -0.01em;
+  }
+  .pc-id {
+    font-family: var(--mono); font-size: 9px;
+    color: var(--mint-pale); letter-spacing: 0.1em;
+    margin-top: 5px; font-weight: 500;
+  }
+  .pc-conf {
+    font-family: var(--mono); font-size: 14px;
+    font-weight: 700; color: var(--gold);
+  }
+  .pc.critical .pc-conf { color: var(--coral); }
+  .pc-illness {
+    font-family: var(--mono); font-size: 9px;
+    color: var(--gold); letter-spacing: 0.05em;
+    text-transform: uppercase; margin-bottom: 6px; font-weight: 600;
+  }
+  .pc.critical .pc-illness { color: var(--coral); }
+  .pc-window {
+    font-size: 18px; font-weight: 600; color: var(--white);
+    margin-bottom: 14px; letter-spacing: -0.01em;
+  }
+  .pc-signals {
+    display: flex; flex-direction: column; gap: 5px;
+    font-family: var(--mono); font-size: 10px;
+    color: var(--mint-pale);
+    flex: 1;
+  }
+  .pc-signals .s-row { display: flex; justify-content: space-between; }
+  .pc-signals .s-val { color: var(--white); font-weight: 600; }
+  .pc-bar {
+    margin-top: 12px; height: 4px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 2px; overflow: hidden;
+  }
+  .pc-bar-fill {
+    height: 100%; background: var(--gold); border-radius: 2px;
+  }
+  .pc.critical .pc-bar-fill { background: var(--coral); }
+
+  /* ============ PAGE 3: HERD OVERVIEW ============ */
+  .stat-strip {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .stat-card {
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 16px 18px;
+  }
+  .stat-card.featured { background: var(--forest); color: var(--white); border: none; }
+  .stat-card .s-label {
+    font-family: var(--mono); font-size: 9px;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--moss); margin-bottom: 8px; font-weight: 600;
+  }
+  .stat-card.featured .s-label { color: var(--mint-pale); }
+  .stat-card .s-val {
+    font-size: 38px; font-weight: 700;
+    line-height: 1; color: var(--forest); letter-spacing: -0.03em;
+  }
+  .stat-card.featured .s-val { color: var(--white); }
+  .stat-card .s-delta {
+    font-family: var(--mono); font-size: 9px;
+    color: var(--moss); margin-top: 6px;
+    letter-spacing: 0.05em; font-weight: 500;
+  }
+  .stat-card .s-delta.up { color: var(--mint); }
+  .stat-card .s-delta.down { color: var(--coral); }
+
+  .herd-overview-grid {
+    display: grid;
+    grid-template-columns: 2.2fr 1fr;
+    gap: 14px;
+    flex: 1;
+    min-height: 0;
+  }
+  .herd-grid-panel {
+    display: flex;
+    flex-direction: column;
+  }
+  .herd-grid {
+    display: grid;
+    grid-template-columns: repeat(15, 1fr);
+    gap: 5px;
+    margin-top: 10px;
+    flex: 1;
+  }
+  .herd-cell {
+    aspect-ratio: 1;
+    border-radius: 3px;
+    background: var(--mint);
+    cursor: pointer;
+  }
+  .herd-cell.warn { background: var(--amber); }
+  .herd-cell.alert { background: var(--coral); animation: pulseDot 2s infinite; }
+  .herd-cell.critical { background: var(--forest); border: 2px solid var(--coral); }
+  .herd-cell.forecast { background: var(--gold); }
+  .herd-legend {
+    display: flex; gap: 16px;
+    margin-top: 12px;
+    font-family: var(--mono); font-size: 9px;
+    color: var(--moss); flex-wrap: wrap; font-weight: 500;
+  }
+  .herd-legend-item { display: flex; align-items: center; gap: 6px; }
+  .herd-legend-swatch { width: 11px; height: 11px; border-radius: 2px; }
+
+  .attention-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 6px;
+    font-size: 10px;
+  }
+  .attention-table th {
+    text-align: left;
+    font-family: var(--mono); font-size: 8px;
+    color: var(--moss); letter-spacing: 0.1em;
+    text-transform: uppercase; padding: 7px 6px;
+    border-bottom: 1px solid var(--line); font-weight: 600;
+  }
+  .attention-table td {
+    padding: 8px 6px;
+    border-bottom: 1px solid var(--line-soft);
+    font-family: var(--mono); color: var(--forest); font-weight: 500;
+  }
+  .attention-table td.name {
+    font-family: var(--sans); font-size: 13px;
+    font-weight: 600; letter-spacing: -0.01em;
+  }
+  .pill {
+    display: inline-block; padding: 2px 6px;
+    border-radius: 3px; font-size: 8px;
+    font-weight: 600; letter-spacing: 0.05em;
+    text-transform: uppercase; font-family: var(--mono);
+  }
+  .pill.crit { background: var(--coral); color: white; }
+  .pill.warn { background: var(--amber-pale); color: #B57420; }
+  .pill.fcst { background: var(--gold); color: var(--forest-deep); }
+
+  /* ============ PAGE 4: METRICS ============ */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .big-metric {
+    background: var(--offwhite);
+    border-radius: 12px;
+    padding: 22px;
+  }
+  .big-metric .lbl {
+    font-family: var(--mono); font-size: 10px;
+    color: var(--moss); letter-spacing: 0.15em;
+    text-transform: uppercase; margin-bottom: 12px; font-weight: 600;
+  }
+  .big-metric .val {
+    font-size: 56px; font-weight: 700;
+    color: var(--forest); line-height: 1;
+    letter-spacing: -0.04em;
+  }
+  .big-metric .val .unit {
+    font-size: 22px; color: var(--moss);
+    font-weight: 500; margin-left: 4px;
+  }
+  .big-metric .delta {
+    font-family: var(--mono); font-size: 10px;
+    color: var(--mint); margin-top: 8px;
+    letter-spacing: 0.05em; font-weight: 500;
+  }
+  .big-metric .delta.warn { color: var(--amber); }
+
+  .distributions-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    flex: 1;
+    min-height: 0;
+  }
+  .distribution {
+    display: flex;
+    align-items: flex-end;
+    gap: 5px;
+    flex: 1;
+    margin-top: 14px;
+    min-height: 100px;
+  }
+  .dist-bar {
+    flex: 1; background: var(--moss);
+    border-radius: 3px 3px 0 0; min-height: 6px;
+  }
+  .dist-bar.alert { background: var(--coral); }
+  .dist-bar.warn { background: var(--amber); }
+  .dist-bar.mint { background: var(--mint); }
+  .dist-axis {
+    display: flex; justify-content: space-between;
+    margin-top: 8px;
+    font-family: var(--mono); font-size: 9px;
+    color: var(--moss); font-weight: 500;
+  }
+
+  /* ============ PAGE 5: PASTURE ============ */
+  .pasture-page-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 14px;
+    flex: 1;
+    min-height: 0;
+  }
+  .pasture-map {
+    width: 100%; height: 100%;
+    background: linear-gradient(135deg, #EFEDE0 0%, #E5E8DA 100%);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-top: 10px;
+    flex: 1;
+  }
+  .pasture-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .pasture-stat {
+    background: var(--offwhite);
+    border-radius: 10px;
+    padding: 16px;
+    border-left: 4px solid var(--mint);
+  }
+  .pasture-stat.gold { border-left-color: var(--gold); }
+  .pasture-stat.coral { border-left-color: var(--coral); }
+  .pasture-stat .ps-name {
+    font-size: 16px; font-weight: 700;
+    color: var(--forest); letter-spacing: -0.01em;
+  }
+  .pasture-stat .ps-info {
+    display: flex; gap: 16px; margin-top: 6px;
+    font-family: var(--mono); font-size: 10px;
+    color: var(--moss); font-weight: 500;
+  }
+  .pasture-stat .ps-info .v { color: var(--forest); font-weight: 700; }
+
+  /* ============ PAGE 6: REPORT ============ */
+  .report-page-content {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+  }
+  .report-doc {
+    flex: 1;
+    background: var(--white);
+    padding: 30px 50px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .report-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 22px;
+    padding-bottom: 18px;
+    border-bottom: 2px solid var(--forest);
+  }
+  .report-brand {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .report-brand .name {
+    font-size: 20px; font-weight: 700;
+    color: var(--forest); letter-spacing: -0.02em;
+  }
+  .report-eyebrow-r {
+    font-family: var(--mono); font-size: 10px;
+    color: var(--moss); letter-spacing: 0.18em;
+    text-transform: uppercase; font-weight: 600;
+    text-align: right;
+  }
+
+  .report-title-block {
+    margin-bottom: 24px;
+  }
+  .report-h1 {
+    font-size: 38px; font-weight: 700;
+    color: var(--forest); line-height: 1;
+    letter-spacing: -0.03em; margin-bottom: 12px;
+  }
+  .report-meta {
+    display: flex; gap: 22px;
+    font-family: var(--mono); font-size: 10px;
+    color: var(--moss); letter-spacing: 0.05em; font-weight: 500;
+  }
+  .report-meta .label {
+    color: var(--moss-soft); text-transform: uppercase; margin-right: 5px;
+  }
+  .report-meta .value {
+    color: var(--forest); font-weight: 600;
+  }
+
+  .report-section {
+    margin-bottom: 18px;
+  }
+  .report-section-title {
+    font-family: var(--mono); font-size: 9px;
+    color: var(--moss); letter-spacing: 0.18em;
+    text-transform: uppercase; margin-bottom: 10px;
+    padding-bottom: 6px; border-bottom: 1px solid var(--line);
+    font-weight: 600;
+  }
+
+  .report-summary-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+  }
+  .report-stat {
+    padding: 10px 14px;
+    background: var(--offwhite);
+    border-radius: 8px;
+  }
+  .report-stat .v {
+    font-size: 26px; font-weight: 700;
+    color: var(--forest); line-height: 1; letter-spacing: -0.03em;
+  }
+  .report-stat.coral .v { color: var(--coral); }
+  .report-stat.gold .v { color: #C9A748; }
+  .report-stat.amber .v { color: #C77A2E; }
+  .report-stat.mint .v { color: var(--moss); }
+  .report-stat .l {
+    font-family: var(--mono); font-size: 8px;
+    color: var(--moss); letter-spacing: 0.08em;
+    text-transform: uppercase; margin-top: 5px; font-weight: 500;
+  }
+
+  .report-table {
+    width: 100%; border-collapse: collapse; font-size: 11px;
+  }
+  .report-table th {
+    text-align: left;
+    font-family: var(--mono); font-size: 8px;
+    color: var(--moss); letter-spacing: 0.1em;
+    text-transform: uppercase; padding: 8px 6px;
+    border-bottom: 2px solid var(--line); font-weight: 600;
+  }
+  .report-table td {
+    padding: 8px 6px;
+    border-bottom: 1px solid var(--line-soft);
+    color: var(--forest);
+  }
+  .report-table td.name {
+    font-weight: 600; font-size: 12px; letter-spacing: -0.01em;
+  }
+  .report-table td.mono {
+    font-family: var(--mono); font-weight: 500;
+  }
+
+  .report-signature-row {
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+  }
+  .report-signature {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .report-signature .sig-info .sig-label {
+    font-family: var(--mono); font-size: 8px;
+    color: var(--moss); letter-spacing: 0.1em;
+    text-transform: uppercase; font-weight: 600;
+  }
+  .report-signature .sig-info .sig-name {
+    font-size: 14px; font-weight: 700;
+    color: var(--forest); letter-spacing: -0.01em;
+    margin-top: 2px;
+  }
+  .report-footer-text {
+    font-family: var(--mono); font-size: 9px;
+    color: var(--moss); letter-spacing: 0.08em;
+    text-transform: uppercase; font-weight: 500;
+  }
+
+  /* ============ NAVIGATION ============ */
+  .nav-bar {
+    width: 100%;
+    max-width: 1400px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 8px;
+  }
+  .nav-btn {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.85);
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+    font-family: var(--mono);
+    transition: all 0.15s;
+    backdrop-filter: blur(8px);
+  }
+  .nav-btn:hover {
+    background: rgba(255,255,255,0.18);
+    border-color: rgba(255,255,255,0.3);
+    color: white;
+    transform: translateY(-1px);
+  }
+  .nav-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .nav-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  .page-dots {
+    display: flex; gap: 8px;
+  }
+  .page-dot {
+    width: 8px; height: 8px;
+    background: rgba(255,255,255,0.25);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .page-dot:hover {
+    background: rgba(255,255,255,0.5);
+  }
+  .page-dot.active {
+    background: var(--mint);
+    width: 24px;
+    border-radius: 4px;
+  }
+  .page-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: rgba(255,255,255,0.6);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+</style>
+</head>
+<body>
+
+<div class="macbook">
+  <div class="macbook-screen">
+    <div class="macbook-display">
+
+      <!-- ============ PAGE 1: COVER ============ -->
+      <div class="page cover-page active" id="page-1">
+        <div class="cover-mark">
+          <svg viewBox="0 0 40 40" width="36" height="36">
+            <circle cx="20" cy="20" r="18" fill="#143D2B"/>
+            <path d="M 13 22 Q 13 13 22 13 Q 27 13 27 17 L 23 17 Q 21 17 21 19 Q 21 22 24 22 L 27 22 L 27 26 Q 27 28 24 28 Q 13 28 13 22 Z" fill="#FFFFFF"/>
+            <ellipse cx="29" cy="13" rx="3.5" ry="2" fill="#52B788" transform="rotate(-30 29 13)"/>
+          </svg>
+          <h1>GrazeTech</h1>
+        </div>
+
+        <div class="cover-meta-top">
+          06 May 2026 · 14:32 PST<br>
+          Clearwater Ranch
+        </div>
+
+        <div class="cover-body">
+          <div class="cover-eyebrow">Predictive Livestock Intelligence</div>
+          <div class="cover-title">Smarter herds.<br>Earlier care.</div>
+          <div class="cover-tagline">Real-time biometrics, GPS tracking, and a 24–48 hour sickness forecast for every cow in the herd.</div>
+
+          <div class="cover-stats">
+            <div class="cover-stat">
+              <div class="v">127</div>
+              <div class="l">Total head</div>
+            </div>
+            <div class="cover-stat">
+              <div class="v">8</div>
+              <div class="l">Need attention</div>
+            </div>
+            <div class="cover-stat">
+              <div class="v">87%</div>
+              <div class="l">Model accuracy</div>
+            </div>
+            <div class="cover-stat">
+              <div class="v">48h</div>
+              <div class="l">Forecast window</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="cover-bottom">
+          <div class="cover-author">
+            <span class="label">Prepared by</span>
+            Felix Huynh · Operator
+          </div>
+          <div class="cover-page-num">01 / 06</div>
+        </div>
+      </div>
+
+      <!-- ============ PAGE 2: PREDICTIONS ============ -->
+      <div class="page" id="page-2">
+        <div class="top-bar">
+          <div class="brand">
+            <svg viewBox="0 0 40 40" width="34" height="34">
+              <circle cx="20" cy="20" r="18" fill="#143D2B"/>
+              <path d="M 13 22 Q 13 13 22 13 Q 27 13 27 17 L 23 17 Q 21 17 21 19 Q 21 22 24 22 L 27 22 L 27 26 Q 27 28 24 28 Q 13 28 13 22 Z" fill="#FFFFFF"/>
+              <ellipse cx="29" cy="13" rx="3.5" ry="2" fill="#52B788" transform="rotate(-30 29 13)"/>
+            </svg>
+            <div class="brand-text">
+              <h1>GrazeTech</h1>
+              <div class="tag">Sickness Predictions</div>
+            </div>
+          </div>
+          <div class="operator-pill">
+            <div class="avatar">FH</div>
+            Felix Huynh · Clearwater Ranch
+          </div>
+          <div class="top-meta">
+            <div><span class="pulse-dot"></span>LIVE · 127 sensors</div>
+            <div>14:32 PST</div>
+          </div>
+        </div>
+
+        <div class="page-content">
+          <div class="notification-hero">
+            <div class="nh-header">
+              <div class="nh-title-block">
+                <div class="alert-icon">!</div>
+                <div>
+                  <div class="nh-title">8 cows need attention</div>
+                  <div class="nh-subtitle">Predictive sickness model · 24–48 hour forecast window</div>
+                </div>
+              </div>
+              <div class="nh-summary">
+                <div class="summ coral">
+                  <div class="n">3</div>
+                  <div class="l">sick now</div>
+                </div>
+                <div class="summ gold">
+                  <div class="n">5</div>
+                  <div class="l">predicted 24–48h</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="prediction-cards">
+              <div class="pc critical">
+                <div class="pc-head">
+                  <div><div class="pc-name">Bella</div><div class="pc-id">CLR-0007</div></div>
+                  <div class="pc-conf">87%</div>
+                </div>
+                <div class="pc-illness">BRD · Critical</div>
+                <div class="pc-window">Sick now</div>
+                <div class="pc-signals">
+                  <div class="s-row"><span>Temp</span><span class="s-val">40.4°C</span></div>
+                  <div class="s-row"><span>Rumination</span><span class="s-val">↓42%</span></div>
+                  <div class="s-row"><span>Distance</span><span class="s-val">↓43%</span></div>
+                </div>
+                <div class="pc-bar"><div class="pc-bar-fill" style="width: 100%"></div></div>
+              </div>
+
+              <div class="pc">
+                <div class="pc-head">
+                  <div><div class="pc-name">Willow</div><div class="pc-id">CLR-0049</div></div>
+                  <div class="pc-conf">79%</div>
+                </div>
+                <div class="pc-illness">BRD predicted</div>
+                <div class="pc-window">+30–42h</div>
+                <div class="pc-signals">
+                  <div class="s-row"><span>Temp</span><span class="s-val">39.3°C ↑</span></div>
+                  <div class="s-row"><span>Rumination</span><span class="s-val">↓28%</span></div>
+                  <div class="s-row"><span>Distance</span><span class="s-val">↓22%</span></div>
+                </div>
+                <div class="pc-bar"><div class="pc-bar-fill" style="width: 79%"></div></div>
+              </div>
+
+              <div class="pc">
+                <div class="pc-head">
+                  <div><div class="pc-name">Juniper</div><div class="pc-id">CLR-0085</div></div>
+                  <div class="pc-conf">74%</div>
+                </div>
+                <div class="pc-illness">Mastitis predicted</div>
+                <div class="pc-window">+24–36h</div>
+                <div class="pc-signals">
+                  <div class="s-row"><span>Temp</span><span class="s-val">39.2°C ↑</span></div>
+                  <div class="s-row"><span>Rumination</span><span class="s-val">↓24%</span></div>
+                  <div class="s-row"><span>Distance</span><span class="s-val">↓18%</span></div>
+                </div>
+                <div class="pc-bar"><div class="pc-bar-fill" style="width: 74%"></div></div>
+              </div>
+
+              <div class="pc">
+                <div class="pc-head">
+                  <div><div class="pc-name">Sage</div><div class="pc-id">CLR-0111</div></div>
+                  <div class="pc-conf">68%</div>
+                </div>
+                <div class="pc-illness">Lameness predicted</div>
+                <div class="pc-window">+36–48h</div>
+                <div class="pc-signals">
+                  <div class="s-row"><span>Temp</span><span class="s-val">39.2°C</span></div>
+                  <div class="s-row"><span>Rumination</span><span class="s-val">↓15%</span></div>
+                  <div class="s-row"><span>Distance</span><span class="s-val">↓51% ↑</span></div>
+                </div>
+                <div class="pc-bar"><div class="pc-bar-fill" style="width: 68%"></div></div>
+              </div>
+
+              <div class="pc">
+                <div class="pc-head">
+                  <div><div class="pc-name">Hazel</div><div class="pc-id">CLR-0073</div></div>
+                  <div class="pc-conf">63%</div>
+                </div>
+                <div class="pc-illness">Ketosis predicted</div>
+                <div class="pc-window">+40–48h</div>
+                <div class="pc-signals">
+                  <div class="s-row"><span>Temp</span><span class="s-val">38.9°C</span></div>
+                  <div class="s-row"><span>Rumination</span><span class="s-val">↓33% ↑</span></div>
+                  <div class="s-row"><span>Distance</span><span class="s-val">↓12%</span></div>
+                </div>
+                <div class="pc-bar"><div class="pc-bar-fill" style="width: 63%"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ PAGE 3: HERD OVERVIEW ============ -->
+      <div class="page" id="page-3">
+        <div class="top-bar">
+          <div class="brand">
+            <svg viewBox="0 0 40 40" width="34" height="34">
+              <circle cx="20" cy="20" r="18" fill="#143D2B"/>
+              <path d="M 13 22 Q 13 13 22 13 Q 27 13 27 17 L 23 17 Q 21 17 21 19 Q 21 22 24 22 L 27 22 L 27 26 Q 27 28 24 28 Q 13 28 13 22 Z" fill="#FFFFFF"/>
+              <ellipse cx="29" cy="13" rx="3.5" ry="2" fill="#52B788" transform="rotate(-30 29 13)"/>
+            </svg>
+            <div class="brand-text">
+              <h1>GrazeTech</h1>
+              <div class="tag">Herd Overview</div>
+            </div>
+          </div>
+          <div class="operator-pill">
+            <div class="avatar">FH</div>
+            Felix Huynh · Clearwater Ranch
+          </div>
+          <div class="top-meta">
+            <div><span class="pulse-dot"></span>LIVE · 127 sensors</div>
+            <div>14:32 PST</div>
+          </div>
+        </div>
+
+        <div class="page-content">
+          <div class="page-header">
+            <div class="page-eyebrow">All 127 head · Status snapshot</div>
+            <div class="page-title">Herd Overview</div>
+          </div>
+
+          <div class="stat-strip">
+            <div class="stat-card featured">
+              <div class="s-label">Total head</div>
+              <div class="s-val">127</div>
+              <div class="s-delta">+2 since last week</div>
+            </div>
+            <div class="stat-card">
+              <div class="s-label">Healthy</div>
+              <div class="s-val" style="color: #2D6A4F">114</div>
+              <div class="s-delta up">89.8% of herd</div>
+            </div>
+            <div class="stat-card">
+              <div class="s-label">Forecast risk</div>
+              <div class="s-val" style="color: #C9A748">5</div>
+              <div class="s-delta">predicted 24–48h</div>
+            </div>
+            <div class="stat-card">
+              <div class="s-label">Monitoring</div>
+              <div class="s-val" style="color: #C77A2E">9</div>
+              <div class="s-delta">elevated vitals</div>
+            </div>
+            <div class="stat-card">
+              <div class="s-label">Sick now</div>
+              <div class="s-val" style="color: #E76F51">3</div>
+              <div class="s-delta down">vet review</div>
+            </div>
+          </div>
+
+          <div class="herd-overview-grid">
+            <div class="panel herd-grid-panel">
+              <div class="panel-title">
+                Status Grid · 127 head
+                <span class="badge">Hover for ID</span>
+              </div>
+              <div class="herd-grid" id="herdGrid"></div>
+              <div class="herd-legend">
+                <div class="herd-legend-item"><div class="herd-legend-swatch" style="background: #52B788"></div>Healthy 114</div>
+                <div class="herd-legend-item"><div class="herd-legend-swatch" style="background: #E9C46A"></div>Forecast 5</div>
+                <div class="herd-legend-item"><div class="herd-legend-swatch" style="background: #F4A261"></div>Monitoring 9</div>
+                <div class="herd-legend-item"><div class="herd-legend-swatch" style="background: #E76F51"></div>Sick 3</div>
+                <div class="herd-legend-item"><div class="herd-legend-swatch" style="background: #143D2B; border: 1.5px solid #E76F51"></div>Critical 1</div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-title">
+                Attention Queue
+                <span class="badge alert">13 head</span>
+              </div>
+              <table class="attention-table">
+                <thead>
+                  <tr><th>Cow</th><th>ID</th><th>Temp</th><th>Status</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td class="name">Bella</td><td>CLR-0007</td><td style="color:#E76F51">40.4°</td><td><span class="pill crit">Critical</span></td></tr>
+                  <tr><td class="name">Marigold</td><td>CLR-0091</td><td style="color:#E76F51">40.1°</td><td><span class="pill crit">Sick</span></td></tr>
+                  <tr><td class="name">Saffron</td><td>CLR-0118</td><td style="color:#E76F51">39.9°</td><td><span class="pill crit">Sick</span></td></tr>
+                  <tr><td class="name">Willow</td><td>CLR-0049</td><td>39.3°</td><td><span class="pill fcst">+42h</span></td></tr>
+                  <tr><td class="name">Juniper</td><td>CLR-0085</td><td>39.2°</td><td><span class="pill fcst">+36h</span></td></tr>
+                  <tr><td class="name">Sage</td><td>CLR-0111</td><td>39.2°</td><td><span class="pill fcst">+48h</span></td></tr>
+                  <tr><td class="name">Hazel</td><td>CLR-0073</td><td>38.9°</td><td><span class="pill fcst">+48h</span></td></tr>
+                  <tr><td class="name">Rosie</td><td>CLR-0024</td><td style="color:#F4A261">39.7°</td><td><span class="pill warn">Monitor</span></td></tr>
+                  <tr><td class="name">Buttercup</td><td>CLR-0019</td><td style="color:#F4A261">39.4°</td><td><span class="pill warn">Monitor</span></td></tr>
+                  <tr><td class="name">Honey</td><td>CLR-0067</td><td style="color:#F4A261">39.6°</td><td><span class="pill warn">Monitor</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ PAGE 4: METRICS ============ -->
+      <div class="page" id="page-4">
+        <div class="top-bar">
+          <div class="brand">
+            <svg viewBox="0 0 40 40" width="34" height="34">
+              <circle cx="20" cy="20" r="18" fill="#143D2B"/>
+              <path d="M 13 22 Q 13 13 22 13 Q 27 13 27 17 L 23 17 Q 21 17 21 19 Q 21 22 24 22 L 27 22 L 27 26 Q 27 28 24 28 Q 13 28 13 22 Z" fill="#FFFFFF"/>
+              <ellipse cx="29" cy="13" rx="3.5" ry="2" fill="#52B788" transform="rotate(-30 29 13)"/>
+            </svg>
+            <div class="brand-text">
+              <h1>GrazeTech</h1>
+              <div class="tag">Herd Metrics</div>
+            </div>
+          </div>
+          <div class="operator-pill">
+            <div class="avatar">FH</div>
+            Felix Huynh · Clearwater Ranch
+          </div>
+          <div class="top-meta">
+            <div><span class="pulse-dot"></span>LIVE · 127 sensors</div>
+            <div>14:32 PST</div>
+          </div>
+        </div>
+
+        <div class="page-content">
+          <div class="page-header">
+            <div class="page-eyebrow">Herd-wide averages · 24h</div>
+            <div class="page-title">Key Metrics</div>
+          </div>
+
+          <div class="metrics-grid">
+            <div class="big-metric">
+              <div class="lbl">Body Temperature</div>
+              <div class="val">38.9<span class="unit">°C</span></div>
+              <div class="delta">Within normal range</div>
+            </div>
+            <div class="big-metric">
+              <div class="lbl">Rumination</div>
+              <div class="val">5.4<span class="unit">h</span></div>
+              <div class="delta">Healthy baseline</div>
+            </div>
+            <div class="big-metric">
+              <div class="lbl">Distance / day</div>
+              <div class="val">3.7<span class="unit">km</span></div>
+              <div class="delta">Per cow average</div>
+            </div>
+            <div class="big-metric">
+              <div class="lbl">Total Movement</div>
+              <div class="val">468<span class="unit">km</span></div>
+              <div class="delta">Whole herd · 24h</div>
+            </div>
+          </div>
+
+          <div class="distributions-row">
+            <div class="panel" style="display: flex; flex-direction: column;">
+              <div class="panel-title">
+                Temperature Distribution · 127 cows
+                <span class="badge">38.9°C avg</span>
+              </div>
+              <div class="distribution">
+                <div class="dist-bar mint" style="height: 8%"></div>
+                <div class="dist-bar mint" style="height: 18%"></div>
+                <div class="dist-bar" style="height: 32%"></div>
+                <div class="dist-bar" style="height: 65%"></div>
+                <div class="dist-bar" style="height: 88%"></div>
+                <div class="dist-bar" style="height: 92%"></div>
+                <div class="dist-bar" style="height: 70%"></div>
+                <div class="dist-bar" style="height: 42%"></div>
+                <div class="dist-bar warn" style="height: 25%"></div>
+                <div class="dist-bar warn" style="height: 14%"></div>
+                <div class="dist-bar alert" style="height: 8%"></div>
+                <div class="dist-bar alert" style="height: 4%"></div>
+              </div>
+              <div class="dist-axis">
+                <span>38.0</span><span>38.5</span><span>39.0</span><span>39.5</span><span>40.0</span><span>40.5°C</span>
+              </div>
+            </div>
+
+            <div class="panel" style="display: flex; flex-direction: column;">
+              <div class="panel-title">
+                Rumination Distribution · 127 cows
+                <span class="badge">5.4h avg</span>
+              </div>
+              <div class="distribution">
+                <div class="dist-bar alert" style="height: 6%"></div>
+                <div class="dist-bar warn" style="height: 14%"></div>
+                <div class="dist-bar warn" style="height: 28%"></div>
+                <div class="dist-bar" style="height: 52%"></div>
+                <div class="dist-bar" style="height: 78%"></div>
+                <div class="dist-bar" style="height: 92%"></div>
+                <div class="dist-bar mint" style="height: 85%"></div>
+                <div class="dist-bar mint" style="height: 60%"></div>
+                <div class="dist-bar mint" style="height: 32%"></div>
+                <div class="dist-bar" style="height: 12%"></div>
+              </div>
+              <div class="dist-axis">
+                <span>2h</span><span>3h</span><span>4h</span><span>5h</span><span>6h</span><span>7h+</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ PAGE 5: PASTURE ============ -->
+      <div class="page" id="page-5">
+        <div class="top-bar">
+          <div class="brand">
+            <svg viewBox="0 0 40 40" width="34" height="34">
+              <circle cx="20" cy="20" r="18" fill="#143D2B"/>
+              <path d="M 13 22 Q 13 13 22 13 Q 27 13 27 17 L 23 17 Q 21 17 21 19 Q 21 22 24 22 L 27 22 L 27 26 Q 27 28 24 28 Q 13 28 13 22 Z" fill="#FFFFFF"/>
+              <ellipse cx="29" cy="13" rx="3.5" ry="2" fill="#52B788" transform="rotate(-30 29 13)"/>
+            </svg>
+            <div class="brand-text">
+              <h1>GrazeTech</h1>
+              <div class="tag">Pasture & Movement</div>
+            </div>
+          </div>
+          <div class="operator-pill">
+            <div class="avatar">FH</div>
+            Felix Huynh · Clearwater Ranch
+          </div>
+          <div class="top-meta">
+            <div><span class="pulse-dot"></span>LIVE · 127 sensors</div>
+            <div>14:32 PST</div>
+          </div>
+        </div>
+
+        <div class="page-content">
+          <div class="page-header">
+            <div class="page-eyebrow">GPS distribution across 4 zones</div>
+            <div class="page-title">Pasture & Movement</div>
+          </div>
+
+          <div class="pasture-page-grid">
+            <div class="panel" style="display: flex; flex-direction: column;">
+              <div class="panel-title">
+                Live Pasture Map
+                <span class="badge mint">All sensors active</span>
+              </div>
+              <div class="pasture-map">
+                <svg viewBox="0 0 400 220" style="width:100%; height:100%;">
+                  <path d="M 20 30 L 180 25 L 195 110 L 25 115 Z" fill="#52B788" opacity="0.45" stroke="#2D6A4F" stroke-width="1.5"/>
+                  <text x="100" y="68" text-anchor="middle" font-family="Inter Tight" font-weight="700" font-size="14" fill="#143D2B">North A</text>
+                  <text x="100" y="86" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#143D2B" font-weight="500">42 head</text>
+
+                  <path d="M 210 25 L 380 30 L 380 115 L 220 110 Z" fill="#E9C46A" opacity="0.45" stroke="#2D6A4F" stroke-width="1.5"/>
+                  <text x="295" y="68" text-anchor="middle" font-family="Inter Tight" font-weight="700" font-size="14" fill="#143D2B">North B</text>
+                  <text x="295" y="86" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#143D2B" font-weight="500">38 · 3 risk</text>
+
+                  <path d="M 25 130 L 195 125 L 200 200 L 30 195 Z" fill="#52B788" opacity="0.45" stroke="#2D6A4F" stroke-width="1.5"/>
+                  <text x="110" y="163" text-anchor="middle" font-family="Inter Tight" font-weight="700" font-size="14" fill="#143D2B">South</text>
+                  <text x="110" y="181" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#143D2B" font-weight="500">31 head</text>
+
+                  <path d="M 220 130 L 380 130 L 380 200 L 225 200 Z" fill="#E76F51" opacity="0.3" stroke="#E76F51" stroke-width="1.5" stroke-dasharray="4,2"/>
+                  <text x="300" y="163" text-anchor="middle" font-family="Inter Tight" font-weight="700" font-size="14" fill="#143D2B">Isolation</text>
+                  <text x="300" y="181" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#143D2B" font-weight="500">3 · sick</text>
+
+                  <g fill="#143D2B">
+                    <circle cx="50" cy="55" r="2"/><circle cx="70" cy="65" r="2"/><circle cx="90" cy="50" r="2"/>
+                    <circle cx="120" cy="60" r="2"/><circle cx="60" cy="90" r="2"/><circle cx="100" cy="95" r="2"/>
+                    <circle cx="130" cy="100" r="2"/><circle cx="160" cy="80" r="2"/>
+                    <circle cx="240" cy="55" r="2"/><circle cx="270" cy="60" r="2"/><circle cx="300" cy="50" r="2"/>
+                    <circle cx="330" cy="70" r="2"/><circle cx="360" cy="55" r="2"/><circle cx="290" cy="85" r="2"/>
+                    <circle cx="320" cy="95" r="2"/><circle cx="350" cy="100" r="2"/>
+                    <circle cx="50" cy="155" r="2"/><circle cx="80" cy="165" r="2"/><circle cx="110" cy="155" r="2"/>
+                    <circle cx="140" cy="175" r="2"/><circle cx="170" cy="160" r="2"/><circle cx="60" cy="185" r="2"/>
+                  </g>
+                  <circle cx="305" cy="155" r="3" fill="#E76F51">
+                    <animate attributeName="opacity" values="1;0.3;1" dur="1.5s" repeatCount="indefinite"/>
+                  </circle>
+                  <circle cx="290" cy="175" r="3" fill="#E76F51">
+                    <animate attributeName="opacity" values="1;0.3;1" dur="1.5s" repeatCount="indefinite"/>
+                  </circle>
+                  <circle cx="330" cy="180" r="3" fill="#E76F51">
+                    <animate attributeName="opacity" values="1;0.3;1" dur="1.5s" repeatCount="indefinite"/>
+                  </circle>
+                </svg>
+              </div>
+            </div>
+
+            <div class="pasture-stats">
+              <div class="pasture-stat">
+                <div class="ps-name">North Pasture A</div>
+                <div class="ps-info">
+                  <div><span class="v">42</span> head</div>
+                  <div><span class="v">3.9</span> km/day</div>
+                  <div>All healthy</div>
+                </div>
+              </div>
+              <div class="pasture-stat gold">
+                <div class="ps-name">North Pasture B</div>
+                <div class="ps-info">
+                  <div><span class="v">38</span> head</div>
+                  <div><span class="v">3.5</span> km/day</div>
+                  <div>3 forecast risk</div>
+                </div>
+              </div>
+              <div class="pasture-stat">
+                <div class="ps-name">South Pasture</div>
+                <div class="ps-info">
+                  <div><span class="v">31</span> head</div>
+                  <div><span class="v">4.2</span> km/day</div>
+                  <div>All healthy</div>
+                </div>
+              </div>
+              <div class="pasture-stat coral">
+                <div class="ps-name">Isolation Pen</div>
+                <div class="ps-info">
+                  <div><span class="v">3</span> head</div>
+                  <div><span class="v">0.6</span> km/day</div>
+                  <div>Under treatment</div>
+                </div>
+              </div>
+
+              <div class="panel" style="margin-top: auto;">
+                <div class="panel-title">Movement summary · 24h</div>
+                <div style="display: flex; justify-content: space-between; align-items: baseline; padding: 8px 0;">
+                  <span style="font-family: var(--mono); font-size: 10px; color: var(--moss); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 500;">Total herd</span>
+                  <span style="font-size: 22px; font-weight: 700; letter-spacing: -0.02em;">468 km</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: baseline; padding: 8px 0;">
+                  <span style="font-family: var(--mono); font-size: 10px; color: var(--moss); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 500;">Most active</span>
+                  <span style="font-size: 14px; font-weight: 700;">Daisy · 8.2 km</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ PAGE 6: REPORT ============ -->
+      <div class="page" id="page-6">
+        <div class="top-bar">
+          <div class="brand">
+            <svg viewBox="0 0 40 40" width="34" height="34">
+              <circle cx="20" cy="20" r="18" fill="#143D2B"/>
+              <path d="M 13 22 Q 13 13 22 13 Q 27 13 27 17 L 23 17 Q 21 17 21 19 Q 21 22 24 22 L 27 22 L 27 26 Q 27 28 24 28 Q 13 28 13 22 Z" fill="#FFFFFF"/>
+              <ellipse cx="29" cy="13" rx="3.5" ry="2" fill="#52B788" transform="rotate(-30 29 13)"/>
+            </svg>
+            <div class="brand-text">
+              <h1>GrazeTech</h1>
+              <div class="tag">Daily Report</div>
+            </div>
+          </div>
+          <div class="operator-pill">
+            <div class="avatar">FH</div>
+            Felix Huynh · Clearwater Ranch
+          </div>
+          <div class="top-meta">
+            <div>06.05.26 · 14:32 PST</div>
+          </div>
+        </div>
+
+        <div class="page-content report-page-content">
+          <div class="report-doc">
+            <div class="report-bar">
+              <div class="report-brand">
+                <svg viewBox="0 0 40 40" width="28" height="28">
+                  <circle cx="20" cy="20" r="18" fill="#143D2B"/>
+                  <path d="M 13 22 Q 13 13 22 13 Q 27 13 27 17 L 23 17 Q 21 17 21 19 Q 21 22 24 22 L 27 22 L 27 26 Q 27 28 24 28 Q 13 28 13 22 Z" fill="#FFFFFF"/>
+                  <ellipse cx="29" cy="13" rx="3.5" ry="2" fill="#52B788" transform="rotate(-30 29 13)"/>
+                </svg>
+                <div class="name">GrazeTech</div>
+              </div>
+              <div class="report-eyebrow-r">Daily Herd Report</div>
+            </div>
+
+            <div class="report-title-block">
+              <div class="report-h1">Clearwater Ranch</div>
+              <div class="report-meta">
+                <div><span class="label">Date</span><span class="value">06 May 2026</span></div>
+                <div><span class="label">Operator</span><span class="value">Felix Huynh</span></div>
+                <div><span class="label">Total head</span><span class="value">127</span></div>
+              </div>
+            </div>
+
+            <div class="report-section">
+              <div class="report-section-title">Herd Summary</div>
+              <div class="report-summary-row">
+                <div class="report-stat mint"><div class="v">114</div><div class="l">Healthy</div></div>
+                <div class="report-stat gold"><div class="v">5</div><div class="l">Forecast 24–48h</div></div>
+                <div class="report-stat amber"><div class="v">9</div><div class="l">Monitoring</div></div>
+                <div class="report-stat coral"><div class="v">3</div><div class="l">Sick now</div></div>
+                <div class="report-stat coral"><div class="v">1</div><div class="l">Critical</div></div>
+              </div>
+            </div>
+
+            <div class="report-section">
+              <div class="report-section-title">Sickness Predictions · 24–48 hour window</div>
+              <table class="report-table">
+                <thead>
+                  <tr><th>Cow</th><th>ID</th><th>Predicted</th><th>Window</th><th>Confidence</th><th>Status</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td class="name">Bella</td><td class="mono">CLR-0007</td><td>BRD</td><td class="mono">Now</td><td class="mono">87%</td><td><span class="pill crit">Critical</span></td></tr>
+                  <tr><td class="name">Marigold</td><td class="mono">CLR-0091</td><td>BRD</td><td class="mono">Now</td><td class="mono">82%</td><td><span class="pill crit">Sick</span></td></tr>
+                  <tr><td class="name">Saffron</td><td class="mono">CLR-0118</td><td>Mastitis</td><td class="mono">Now</td><td class="mono">76%</td><td><span class="pill crit">Sick</span></td></tr>
+                  <tr><td class="name">Willow</td><td class="mono">CLR-0049</td><td>BRD</td><td class="mono">+30–42h</td><td class="mono">79%</td><td><span class="pill fcst">Forecast</span></td></tr>
+                  <tr><td class="name">Juniper</td><td class="mono">CLR-0085</td><td>Mastitis</td><td class="mono">+24–36h</td><td class="mono">74%</td><td><span class="pill fcst">Forecast</span></td></tr>
+                  <tr><td class="name">Sage</td><td class="mono">CLR-0111</td><td>Lameness</td><td class="mono">+36–48h</td><td class="mono">68%</td><td><span class="pill fcst">Forecast</span></td></tr>
+                  <tr><td class="name">Hazel</td><td class="mono">CLR-0073</td><td>Ketosis</td><td class="mono">+40–48h</td><td class="mono">63%</td><td><span class="pill fcst">Forecast</span></td></tr>
+                  <tr><td class="name">Clover</td><td class="mono">CLR-0096</td><td>BRD</td><td class="mono">+44–48h</td><td class="mono">58%</td><td><span class="pill fcst">Forecast</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="report-signature-row">
+              <div class="report-signature">
+                <div class="operator-pill">
+                  <div class="avatar">FH</div>
+                  Felix Huynh
+                </div>
+                <div class="sig-info">
+                  <div class="sig-label">Prepared by</div>
+                  <div class="sig-name">Operator · Clearwater Ranch</div>
+                </div>
+              </div>
+              <div class="report-footer-text">GrazeTech v3.2 · 06 May 2026</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <div class="macbook-base"></div>
+</div>
+
+<!-- NAVIGATION -->
+<div class="nav-bar">
+  <button class="nav-btn" id="prevBtn" onclick="changePage(-1)">&#8592;</button>
+
+  <div class="nav-center">
+    <div class="page-dots">
+      <div class="page-dot active" onclick="goToPage(1)"></div>
+      <div class="page-dot" onclick="goToPage(2)"></div>
+      <div class="page-dot" onclick="goToPage(3)"></div>
+      <div class="page-dot" onclick="goToPage(4)"></div>
+      <div class="page-dot" onclick="goToPage(5)"></div>
+      <div class="page-dot" onclick="goToPage(6)"></div>
+    </div>
+    <div class="page-label" id="pageLabel">01 / 06 · COVER</div>
+  </div>
+
+  <button class="nav-btn" id="nextBtn" onclick="changePage(1)">&#8594;</button>
+</div>
+
+<script>
+  // herd grid
+  const grid = document.getElementById('herdGrid');
+  const total = 127;
+  const cells = [];
+  for (let i = 0; i < total; i++) {
+    let cls = 'herd-cell';
+    if (i === 6) cls += ' critical';
+    else if (i === 90 || i === 117) cls += ' alert';
+    else if ([18, 23, 66, 84, 101, 110].includes(i)) cls += ' warn';
+    else if ([48, 72, 79, 53, 95].includes(i)) cls += ' forecast';
+    const num = String(i + 1).padStart(4, '0');
+    cells.push(`<div class="${cls}" title="CLR-${num}"></div>`);
+  }
+  grid.innerHTML = cells.join('');
+
+  // navigation
+  let currentPage = 1;
+  const totalPages = 6;
+  const pageNames = ['COVER', 'PREDICTIONS', 'OVERVIEW', 'METRICS', 'PASTURE', 'REPORT'];
+
+  function updateUI() {
+    document.querySelectorAll('.page').forEach((p, i) => {
+      p.classList.toggle('active', i + 1 === currentPage);
+    });
+    document.querySelectorAll('.page-dot').forEach((d, i) => {
+      d.classList.toggle('active', i + 1 === currentPage);
+    });
+    document.getElementById('pageLabel').textContent =
+      String(currentPage).padStart(2, '0') + ' / ' +
+      String(totalPages).padStart(2, '0') + ' · ' +
+      pageNames[currentPage - 1];
+    document.getElementById('prevBtn').disabled = currentPage === 1;
+    document.getElementById('nextBtn').disabled = currentPage === totalPages;
+  }
+
+  function changePage(delta) {
+    const next = currentPage + delta;
+    if (next >= 1 && next <= totalPages) {
+      currentPage = next;
+      updateUI();
+    }
+  }
+
+  function goToPage(n) {
+    currentPage = n;
+    updateUI();
+  }
+
+  // keyboard nav
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft') changePage(-1);
+    if (e.key === 'ArrowRight') changePage(1);
+  });
+
+  updateUI();
+</script>
+
+</body>
+</html>
